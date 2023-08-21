@@ -81,7 +81,7 @@ open class NodeJsRootPlugin : Plugin<Project> {
             }
 
             npmInstall.outputs.upToDateWhen {
-                npmInstall.nodeModules.exists()
+                npmInstall.nodeModules.get().asFile.exists()
             }
         }
 
@@ -109,6 +109,7 @@ open class NodeJsRootPlugin : Plugin<Project> {
                 }
             )
             it.parameters.gradleNodeModulesProvider.set(gradleNodeModulesProvider)
+            it.parameters.packagesDir.set(nodeJs.projectPackagesDir)
         }
 
         YarnPlugin.apply(project)
