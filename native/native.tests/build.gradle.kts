@@ -89,11 +89,13 @@ val kotlinTestLibraryK2TestWithXCTest = nativeTest(
     requirePlatformLibs = true,
     xcTestRunner = xcTestRunnerEnabled
 )
-
-val testTags = findProperty("kotlin.native.tests.tags")?.toString()
 // Note: arbitrary JUnit tag expressions can be used in this property.
 // See https://junit.org/junit5/docs/current/user-guide/#running-tests-tag-expressions
+val testTags = findProperty("kotlin.native.tests.tags")?.toString()
+
+// Sets if the XCTest runner should be enabled
 val runWithXCTest = testTags?.contains("xctest") ?: false
+
 val test by nativeTest("test", testTags, requirePlatformLibs = runWithXCTest, xcTestRunner = xcTestRunnerEnabled && runWithXCTest)
 
 val generateTests by generator("org.jetbrains.kotlin.generators.tests.GenerateNativeTestsKt") {
