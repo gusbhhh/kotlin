@@ -49,12 +49,12 @@ internal fun implement(interfaces: Array<dynamic>): BitMask {
             currentSize = imask.size
         }
 
-        val iid: Int? = i.`$metadata$`.iid
-        val iidImask: BitMask? = iid?.let { bitMaskWith(it) }
+        val interfaceId: Int? = i.`$metadata$`.interfaceId
+        val interfaceIdImask: BitMask? = interfaceId?.let { bitMaskWith(it) }
 
-        if (iidImask != null) {
-            masks.push(iidImask)
-            currentSize = JsMath.max(currentSize, iidImask.size)
+        if (interfaceIdImask != null) {
+            masks.push(interfaceIdImask)
+            currentSize = JsMath.max(currentSize, interfaceIdImask.size)
         }
 
         if (currentSize > maxSize) {

@@ -45,7 +45,7 @@ private fun isInterfaceImpl(obj: dynamic, iface: Int): Boolean {
 }
 
 internal fun isInterface(obj: dynamic, iface: dynamic): Boolean {
-    return isInterfaceImpl(obj, iface.`$metadata$`.iid)
+    return isInterfaceImpl(obj, iface.`$metadata$`.interfaceId)
 }
 
 internal fun isSuspendFunction(obj: dynamic, arity: Int): Boolean {
@@ -114,9 +114,9 @@ internal fun jsIsType(obj: dynamic, jsClass: dynamic): Boolean {
     val constructor = if (jsClassType == "object") jsGetPrototypeOf(jsClass) else jsClass
     val klassMetadata = constructor.`$metadata$`
 
-    if (klassMetadata?.kind === "interface") {
-        val iid = klassMetadata.iid.unsafeCast<Int?>() ?: return false
-        return isInterfaceImpl(obj, iid)
+    val interfaceId = klassMetadata.interfaceId.unsafeCast<Int?>()
+    if (interfaceId !== VOID) {
+        return isInterfaceImpl(obj, interfaceId)
     }
 
     return jsInstanceOf(obj, constructor)

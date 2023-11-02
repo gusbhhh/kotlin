@@ -4,16 +4,30 @@
  */
 package kotlin.js
 
+// There was a problem with per-module compilation (KT-55758) when the top-level state (globalInterfaceId) was reinitialized during stdlib module initialization
+// As a result we miss already incremented globalInterfaceId and had the same interfaceIds in two different modules
+// So, to keep the state consistent it was moved into the variable without initializer and function
+@Suppress("MUST_BE_INITIALIZED")
+private var globalInterfaceId: dynamic
+
+private fun generateInterfaceId(): Int {
+    if (globalInterfaceId === VOID) {
+        globalInterfaceId = 0
+    }
+    globalInterfaceId = globalInterfaceId.unsafeCast<Int>() + 1
+    return globalInterfaceId.unsafeCast<Int>()
+}
+
 internal fun setMetadataFor(
     ctor: Ctor,
     name: String?,
-    metadataConstructor: (name: String?, defaultConstructor: dynamic, associatedObjectKey: Number?, associatedObjects: dynamic, suspendArity: Array<Int>?) -> Metadata,
+    defaultConstructor: dynamic,
     parent: Ctor?,
     interfaces: Array<dynamic>?,
-    defaultConstructor: dynamic,
+    addInterfaceId: Boolean?,
+    suspendArity: Array<Int>?,
     associatedObjectKey: Number?,
-    associatedObjects: dynamic,
-    suspendArity: Array<Int>?
+    associatedObjects: dynamic
 ) {
     if (parent != null) {
         js("""
@@ -22,93 +36,62 @@ internal fun setMetadataFor(
         """)
     }
 
-    val metadata = metadataConstructor(name, defaultConstructor, associatedObjectKey, associatedObjects, suspendArity ?: js("[]"))
+    val interfaceId = if (addInterfaceId == true) generateInterfaceId() else VOID
+    val metadata = createMetadata(name, defaultConstructor, associatedObjectKey, associatedObjects, suspendArity, interfaceId)
     ctor.`$metadata$` = metadata
 
     if (interfaces != null) {
-        val receiver = if (metadata.iid != null) ctor else ctor.prototype
+        val receiver = if (metadata.interfaceId != VOID) ctor else ctor.prototype
         receiver.`$imask$` = implement(interfaces)
     }
 }
 
-// There was a problem with per-module compilation (KT-55758) when the top-level state (iid) was reinitialized during stdlib module initialization
-// As a result we miss already incremented iid and had the same iids in two different modules
-// So, to keep the state consistent it was moved into the variable without initializer and function
-@Suppress("MUST_BE_INITIALIZED")
-private var iid: dynamic
-
-private fun generateInterfaceId(): Int {
-    if (iid === VOID) {
-        iid = 0
-    }
-    iid = iid.unsafeCast<Int>() + 1
-    return iid.unsafeCast<Int>()
+internal fun setMetadataForLambda(ctor: Ctor, parent: Ctor?, interfaces: Array<dynamic>?, suspendArity: Array<Int>?) {
+    setMetadataFor(ctor, "Lambda", VOID, parent, interfaces, false, suspendArity, VOID, VOID)
 }
 
-
-internal fun interfaceMeta(
-    name: String?,
-    defaultConstructor: dynamic,
-    associatedObjectKey: Number?,
-    associatedObjects: dynamic,
-    suspendArity: Array<Int>?
-): Metadata {
-    return createMetadata("interface", name, defaultConstructor, associatedObjectKey, associatedObjects, suspendArity, generateInterfaceId())
+internal fun setMetadataForFunctionReference(ctor: Ctor, parent: Ctor?, interfaces: Array<dynamic>?, suspendArity: Array<Int>?) {
+    setMetadataFor(ctor, "FunctionReference", VOID, parent, interfaces, false, suspendArity, VOID, VOID)
 }
 
-internal fun objectMeta(
-    name: String?,
-    defaultConstructor: dynamic,
-    associatedObjectKey: Number?,
-    associatedObjects: dynamic,
-    suspendArity: Array<Int>?
-): Metadata {
-    return createMetadata("object", name, defaultConstructor, associatedObjectKey, associatedObjects, suspendArity, null)
+internal fun setMetadataForCoroutine(ctor: Ctor, parent: Ctor?, interfaces: Array<dynamic>?, suspendArity: Array<Int>?) {
+    setMetadataFor(ctor, "Coroutine", VOID, parent, interfaces, false, suspendArity, VOID, VOID)
 }
 
-internal fun classMeta(
-    name: String?,
-    defaultConstructor: dynamic,
-    associatedObjectKey: Number?,
-    associatedObjects: dynamic,
-    suspendArity: Array<Int>?
-): Metadata {
-    return createMetadata("class", name, defaultConstructor, associatedObjectKey, associatedObjects, suspendArity, null)
+internal fun setMetadataForCompanion(ctor: Ctor, parent: Ctor?, interfaces: Array<dynamic>?, suspendArity: Array<Int>?) {
+    setMetadataFor(ctor, "Companion", VOID, parent, interfaces, false, suspendArity, VOID, VOID)
 }
 
 // Seems like we need to disable this check if variables are used inside js annotation
 @Suppress("UNUSED_PARAMETER", "UNUSED_VARIABLE")
-private fun createMetadata(
-    kind: String,
+internal fun createMetadata(
     name: String?,
     defaultConstructor: dynamic,
     associatedObjectKey: Number?,
     associatedObjects: dynamic,
     suspendArity: Array<Int>?,
-    iid: Int?
+    interfaceId: Int?
 ): Metadata {
     val undef = VOID
     return js("""({
-    kind: kind,
     simpleName: name,
     associatedObjectKey: associatedObjectKey,
     associatedObjects: associatedObjects,
     suspendArity: suspendArity,
     ${'$'}kClass$: undef,
     defaultConstructor: defaultConstructor,
-    iid: iid
+    interfaceId: interfaceId
 })""")
 }
 
 internal external interface Metadata {
-    val kind: String
     // This field gives fast access to the prototype of metadata owner (Object.getPrototypeOf())
     // Can be pre-initialized or lazy initialized and then should be immutable
     val simpleName: String?
     val associatedObjectKey: Number?
     val associatedObjects: dynamic
     val suspendArity: Array<Int>?
-    val iid: Int?
+    val interfaceId: Int?
 
     var `$kClass$`: dynamic
     val defaultConstructor: dynamic

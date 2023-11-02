@@ -154,14 +154,19 @@ internal class JsUsefulDeclarationProcessor(
         if (!irClass.containsMetadata()) return
 
         when {
-            irClass.isObject -> context.intrinsics.metadataObjectConstructorSymbol.owner.enqueue(irClass, "object metadata")
+            irClass.isCompanion -> {
+                context.intrinsics.setMetadataForCompanionSymbol.owner.enqueue(irClass, "companion metadata")
+            }
 
             irClass.isInterface -> {
                 context.intrinsics.implementSymbol.owner.enqueue(irClass, "interface metadata")
-                context.intrinsics.metadataInterfaceConstructorSymbol.owner.enqueue(irClass, "interface metadata")
             }
 
-            else -> context.intrinsics.metadataClassConstructorSymbol.owner.enqueue(irClass, "class metadata")
+            else -> {
+                context.intrinsics.setMetadataForLambdaSymbol.owner.enqueue(irClass, "lambda metadata")
+                context.intrinsics.setMetadataForCoroutineSymbol.owner.enqueue(irClass, "coroutine metadata")
+                context.intrinsics.setMetadataForFunctionReferenceSymbol.owner.enqueue(irClass, "function reference metadata")
+            }
         }
 
         context.intrinsics.setMetadataForSymbol.owner.enqueue(irClass, "metadata")

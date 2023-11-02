@@ -12,6 +12,8 @@ import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.export.isAllowedFakeOverriddenDeclaration
 import org.jetbrains.kotlin.ir.backend.js.export.isExported
 import org.jetbrains.kotlin.ir.backend.js.export.isOverriddenExported
+import org.jetbrains.kotlin.ir.backend.js.lower.CallableReferenceLowering
+import org.jetbrains.kotlin.ir.backend.js.lower.coroutines.AbstractSuspendFunctionsLowering
 import org.jetbrains.kotlin.ir.backend.js.lower.isEs6ConstructorReplacement
 import org.jetbrains.kotlin.ir.backend.js.utils.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -22,6 +24,7 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.js.backend.ast.*
 import org.jetbrains.kotlin.js.backend.ast.JsVars.JsVar
 import org.jetbrains.kotlin.js.common.isValidES5Identifier
+import org.jetbrains.kotlin.name.SpecialNames
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.butIf
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
@@ -372,37 +375,35 @@ class JsClassGenerator(private val irClass: IrClass, val context: JsGenerationCo
     }
 
     private fun generateSetMetadataCall(): JsStatement {
-        val setMetadataFor = backendContext.intrinsics.setMetadataForSymbol.owner
-
         val ctor = classNameRef
         val parent = baseClassRef?.takeIf { !es6mode }
         val name = generateSimpleName()
         val interfaces = generateInterfacesList()
-        val metadataConstructor = getMetadataConstructor()
         val defaultConstructor = runIf(irClass.isClass, ::findDefaultConstructor)
         val associatedObjectKey = generateAssociatedObjectKey()
         val associatedObjects = generateAssociatedObjects()
         val suspendArity = generateSuspendArity()
 
-        return JsInvocation(
-            JsNameRef(context.getNameForStaticFunction(setMetadataFor)),
-            listOf(
-                ctor,
-                name,
-                metadataConstructor,
-                parent,
-                interfaces,
-                defaultConstructor,
-                associatedObjectKey,
-                associatedObjects,
-                suspendArity
-            )
-                .dropLastWhile { it == null }
-                .memoryOptimizedMap { it ?: jsUndefined }
-        ).makeStmt()
+        if (defaultConstructor == null && associatedObjectKey == null && associatedObjects == null) {
+            val setSpecialMetadata = searchSpecialSetMetadata(name)
+            if (setSpecialMetadata != null) {
+                return setSpecialMetadata.invokeWithoutNullArgs(ctor, parent, interfaces, suspendArity)
+            }
+        }
 
+        val addInterfaceId = if (irClass.isInterface) JsBooleanLiteral(true) else null
+        return backendContext.intrinsics.setMetadataForSymbol.owner.invokeWithoutNullArgs(
+            ctor,
+            name,
+            defaultConstructor,
+            parent,
+            interfaces,
+            addInterfaceId,
+            suspendArity,
+            associatedObjectKey,
+            associatedObjects
+        )
     }
-
 
     private fun IrType.asConstructorRef(): JsExpression? {
         val ownerSymbol = classOrNull?.takeIf {
@@ -418,16 +419,31 @@ class JsClassGenerator(private val irClass: IrClass, val context: JsGenerationCo
         return irClass.name.takeIf { !it.isSpecial }?.let { JsStringLiteral(it.identifier) }
     }
 
-    private fun getMetadataConstructor(): JsNameRef {
-        val metadataConstructorSymbol = with(backendContext.intrinsics) {
-            when {
-                irClass.isInterface -> metadataInterfaceConstructorSymbol
-                irClass.isObject -> metadataObjectConstructorSymbol
-                else -> metadataClassConstructorSymbol
+    private fun IrSimpleFunction.invokeWithoutNullArgs(vararg arguments: JsExpression?): JsStatement {
+        return JsInvocation(
+            JsNameRef(context.getNameForStaticFunction(this)),
+            arguments.dropLastWhile { it == null }.memoryOptimizedMap { it ?: jsUndefined }
+        ).makeStmt()
+    }
+
+    private fun searchSpecialSetMetadata(name: JsStringLiteral?): IrSimpleFunction? {
+        if (irClass.isCompanion && name?.value == SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT.asString()) {
+            return backendContext.intrinsics.setMetadataForCompanionSymbol.owner
+        }
+        if (irClass.isClass) {
+            when (irClass.origin) {
+                CallableReferenceLowering.LAMBDA_IMPL -> {
+                    return backendContext.intrinsics.setMetadataForLambdaSymbol.owner
+                }
+                CallableReferenceLowering.FUNCTION_REFERENCE_IMPL -> {
+                    return backendContext.intrinsics.setMetadataForFunctionReferenceSymbol.owner
+                }
+                AbstractSuspendFunctionsLowering.DECLARATION_ORIGIN_COROUTINE_IMPL -> {
+                    return backendContext.intrinsics.setMetadataForCoroutineSymbol.owner
+                }
             }
         }
-
-        return JsNameRef(context.getNameForStaticFunction(metadataConstructorSymbol.owner))
+        return null
     }
 
     private fun generateInterfacesList(): JsArrayLiteral? {
