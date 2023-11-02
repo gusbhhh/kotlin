@@ -32,7 +32,7 @@ public class FirNativeCodegenBoxTestWithXCTestGenerated extends AbstractNativeCo
     public class Box {
         @Test
         public void testAllFilesPresentInBox() throws Exception {
-            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true, "fileCheck");
         }
 
         @Nested
@@ -24698,6 +24698,20 @@ public class FirNativeCodegenBoxTestWithXCTestGenerated extends AbstractNativeCo
             }
 
             @Nested
+            @TestMetadata("compiler/testData/codegen/box/involvesIrInterpreter/constEvaluationFromJavaWorld")
+            @TestDataPath("$PROJECT_ROOT")
+            @Tag("frontend-fir")
+            @FirPipeline()
+            @Tag("xctest")
+            @UseExtTestCaseGroupProvider()
+            public class ConstEvaluationFromJavaWorld {
+                @Test
+                public void testAllFilesPresentInConstEvaluationFromJavaWorld() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/involvesIrInterpreter/constEvaluationFromJavaWorld"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                }
+            }
+
+            @Nested
             @TestMetadata("compiler/testData/codegen/box/involvesIrInterpreter/intrinsicConst")
             @TestDataPath("$PROJECT_ROOT")
             @Tag("frontend-fir")
@@ -27096,6 +27110,12 @@ public class FirNativeCodegenBoxTestWithXCTestGenerated extends AbstractNativeCo
                     runTest("compiler/testData/codegen/box/multiplatform/k2/expectValInInlineClass.kt");
                 }
 
+                @Test
+                @TestMetadata("internalOverride.kt")
+                public void testInternalOverride() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/internalOverride.kt");
+                }
+
                 @Nested
                 @TestMetadata("compiler/testData/codegen/box/multiplatform/k2/annotations")
                 @TestDataPath("$PROJECT_ROOT")
@@ -27437,6 +27457,12 @@ public class FirNativeCodegenBoxTestWithXCTestGenerated extends AbstractNativeCo
                     @TestMetadata("constructor.kt")
                     public void testConstructor() throws Exception {
                         runTest("compiler/testData/codegen/box/multiplatform/k2/defaultArguments/constructor.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("defaultArgumentInDelegatedFunction.kt")
+                    public void testDefaultArgumentInDelegatedFunction() throws Exception {
+                        runTest("compiler/testData/codegen/box/multiplatform/k2/defaultArguments/defaultArgumentInDelegatedFunction.kt");
                     }
 
                     @Test
@@ -41977,7 +42003,7 @@ public class FirNativeCodegenBoxTestWithXCTestGenerated extends AbstractNativeCo
     public class BoxInline {
         @Test
         public void testAllFilesPresentInBoxInline() throws Exception {
-            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/boxInline"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/boxInline"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true, "fileCheck");
         }
 
         @Nested
