@@ -63,7 +63,8 @@ internal class LLFirResolvableResolveSession(
         phase: FirResolvePhase,
     ): FirBasedSymbol<*> {
         val containingKtFile = ktDeclaration.containingKtFile
-        val module = getModule(containingKtFile.originalKtFile ?: containingKtFile)
+        val module = getModule(containingKtFile)
+
         return when (getModuleResolutionStrategy(module)) {
             LLModuleResolutionStrategy.LAZY -> findSourceFirSymbol(ktDeclaration, module).also { resolveFirToPhase(it.fir, phase) }
             LLModuleResolutionStrategy.STATIC -> findFirCompiledSymbol(ktDeclaration, module)
