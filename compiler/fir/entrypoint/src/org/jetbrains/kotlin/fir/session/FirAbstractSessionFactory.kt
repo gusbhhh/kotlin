@@ -159,18 +159,23 @@ abstract class FirAbstractSessionFactory {
     *  To prevent duplications and resolving errors, library or source providers from other modules should be filtered out during flattening.
     *  It depends on the session's kind of the top-level provider */
     private fun FirSymbolProvider.flatten(): List<FirSymbolProvider> {
-        val sourceSession = session.takeIf { it.kind == FirSession.Kind.Source }
+        val originalSession = session.takeIf { it.kind == FirSession.Kind.Source }
         val result = mutableListOf<FirSymbolProvider>()
 
         fun FirSymbolProvider.collectProviders() {
             when {
+                // When provider is composite, unwrap all contained providers and recurse.
                 this is FirCachingCompositeSymbolProvider -> {
                     for (provider in providers) {
                         provider.collectProviders()
                     }
                 }
-                sourceSession != null && session.kind == FirSession.Kind.Source && session == sourceSession ||
-                        sourceSession == null && session.kind == FirSession.Kind.Library -> {
+
+                // Make sure only source symbol providers from the same session as the original symbol provider are flattened. A composite
+                // symbol provider can contain source symbol providers from multiple sessions that may represent dependency symbol providers
+                // which should not be propagated transitively.
+                originalSession != null && session.kind == FirSession.Kind.Source && session == originalSession ||
+                        originalSession == null && session.kind == FirSession.Kind.Library -> {
                     result.add(this)
                 }
             }
