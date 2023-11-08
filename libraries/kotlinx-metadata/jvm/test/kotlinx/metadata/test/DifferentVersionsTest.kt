@@ -29,7 +29,7 @@ class DifferentVersionsTest {
 
     @Test
     fun readsCurrentVersion() {
-        assertContentEquals(KotlinClassMetadata.COMPATIBLE_METADATA_VERSION, metadata.metadataVersion)
+        assertContentEquals(JvmMetadataVersion.INSTANCE.toArray(), metadata.metadataVersion)
         assertIs<KotlinClassMetadata.Class>(KotlinClassMetadata.readStrict(metadata))
         assertIs<KotlinClassMetadata.Class>(KotlinClassMetadata.readLenient(metadata))
     }
