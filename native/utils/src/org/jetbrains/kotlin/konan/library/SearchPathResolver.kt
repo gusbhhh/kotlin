@@ -78,13 +78,13 @@ internal class KonanLibraryProperResolver(
         get() = distributionKlib?.File()?.child("platform")?.child(target.visibleName)
 
     override fun libraryMatch(candidate: KonanLibrary, unresolved: UnresolvedLibrary): Boolean {
-        val resolverTarget = this.target
-        val candidatePath = candidate.libraryFile.absolutePath
+//        val resolverTarget = this.target
+//        val candidatePath = candidate.libraryFile.absolutePath
 
-        if (!candidate.targetList.contains(resolverTarget.visibleName)) {
-            logger.warning("skipping $candidatePath. The target doesn't match. Expected '$resolverTarget', found ${candidate.targetList}")
-            return false
-        }
+//        if (!candidate.targetList.contains(resolverTarget.visibleName)) {
+//            logger.warning("skipping $candidatePath. The target doesn't match. Expected '$resolverTarget', found ${candidate.targetList}")
+//            return false
+//        }
 
         return super.libraryMatch(candidate, unresolved)
     }

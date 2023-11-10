@@ -80,7 +80,7 @@ open class HostManager(
     )
 
     private val enabledRegularByHost: Map<KonanTarget, Set<KonanTarget>> = mapOf(
-        LINUX_X64 to commonTargets,
+        LINUX_X64 to commonTargets + appleTargets,
         MINGW_X64 to commonTargets,
         MACOS_X64 to commonTargets + appleTargets,
         MACOS_ARM64 to commonTargets + appleTargets

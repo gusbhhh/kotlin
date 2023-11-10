@@ -37,7 +37,8 @@ class ZephyrConfigurablesImpl(target: KonanTarget, properties: Properties, depen
 fun loadConfigurables(target: KonanTarget, properties: Properties, dependenciesRoot: String?): Configurables = when (target.family) {
     Family.LINUX -> GccConfigurablesImpl(target, properties, dependenciesRoot)
 
-    Family.TVOS, Family.WATCHOS, Family.IOS, Family.OSX -> AppleConfigurablesImpl(target, properties, dependenciesRoot)
+    Family.TVOS, Family.WATCHOS, Family.IOS, Family.OSX -> GccConfigurablesImpl(target, properties, dependenciesRoot)
+        // AppleConfigurablesImpl(target, properties, dependenciesRoot)
 
     Family.ANDROID -> AndroidConfigurablesImpl(target, properties, dependenciesRoot)
 
