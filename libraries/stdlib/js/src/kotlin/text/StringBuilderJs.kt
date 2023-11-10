@@ -107,7 +107,7 @@ public actual class StringBuilder actual constructor(content: String) : Appendab
      * and then that string was appended to this string builder.
      */
     @SinceKotlin("1.9")
-    actual fun append(value: Byte): StringBuilder = append(value.toString())
+    fun append(value: Byte): StringBuilder = append(value.toString())
 
     /**
      * Appends the string representation of the specified short [value] to this string builder and returns this instance.
@@ -116,7 +116,7 @@ public actual class StringBuilder actual constructor(content: String) : Appendab
      * and then that string was appended to this string builder.
      */
     @SinceKotlin("1.9")
-    actual fun append(value: Short): StringBuilder = append(value.toString())
+    fun append(value: Short): StringBuilder = append(value.toString())
 
     /**
      * Appends the string representation of the specified int [value] to this string builder and returns this instance.
@@ -264,7 +264,7 @@ public actual class StringBuilder actual constructor(content: String) : Appendab
      * @throws IndexOutOfBoundsException if [index] is less than zero or greater than the length of this string builder.
      */
     @SinceKotlin("1.9")
-    actual fun insert(index: Int, value: Byte): StringBuilder = insert(index, value.toString())
+    fun insert(index: Int, value: Byte): StringBuilder = insert(index, value.toString())
 
     /**
      * Inserts the string representation of the specified short [value] into this string builder at the specified [index] and returns this instance.
@@ -275,7 +275,7 @@ public actual class StringBuilder actual constructor(content: String) : Appendab
      * @throws IndexOutOfBoundsException if [index] is less than zero or greater than the length of this string builder.
      */
     @SinceKotlin("1.9")
-    actual fun insert(index: Int, value: Short): StringBuilder = insert(index, value.toString())
+    fun insert(index: Int, value: Short): StringBuilder = insert(index, value.toString())
 
     /**
      * Inserts the string representation of the specified int [value] into this string builder at the specified [index] and returns this instance.

@@ -158,7 +158,7 @@ actual class StringBuilder private constructor (
      * The overall effect is exactly as if the [value] were converted to a string by the `value.toString()` method,
      * and then that string was appended to this string builder.
      */
-    actual fun append(value: Byte): StringBuilder = append(value.toString())
+    fun append(value: Byte): StringBuilder = append(value.toString())
 
     /**
      * Appends the string representation of the specified short [value] to this string builder and returns this instance.
@@ -166,7 +166,7 @@ actual class StringBuilder private constructor (
      * The overall effect is exactly as if the [value] were converted to a string by the `value.toString()` method,
      * and then that string was appended to this string builder.
      */
-    actual fun append(value: Short): StringBuilder = append(value.toString())
+    fun append(value: Short): StringBuilder = append(value.toString())
 
     /**
      * Appends the string representation of the specified int [value] to this string builder and returns this instance.
@@ -312,7 +312,7 @@ actual class StringBuilder private constructor (
      *
      * @throws IndexOutOfBoundsException if [index] is less than zero or greater than the length of this string builder.
      */
-    actual fun insert(index: Int, value: Byte): StringBuilder = insert(index, value.toString())
+    fun insert(index: Int, value: Byte): StringBuilder = insert(index, value.toString())
 
     /**
      * Inserts the string representation of the specified short [value] into this string builder at the specified [index] and returns this instance.
@@ -322,7 +322,7 @@ actual class StringBuilder private constructor (
      *
      * @throws IndexOutOfBoundsException if [index] is less than zero or greater than the length of this string builder.
      */
-    actual fun insert(index: Int, value: Short): StringBuilder = insert(index, value.toString())
+    fun insert(index: Int, value: Short): StringBuilder = insert(index, value.toString())
 
     /**
      * Inserts the string representation of the specified int [value] into this string builder at the specified [index] and returns this instance.
