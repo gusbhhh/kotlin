@@ -43,8 +43,10 @@ sealed class JsIrBinary(
     var generateTs: Boolean = false
 
     val mainFileName: Provider<String> by lazy {
-        compilation.compilerOptions.options.moduleName.zip(compilation.extension) { moduleName, extension ->
-            "$moduleName.$extension"
+        linkTask.flatMap {
+            it.compilerOptions.moduleName.zip(compilation.extension) { moduleName, extension ->
+                "$moduleName.$extension"
+            }
         }
     }
 

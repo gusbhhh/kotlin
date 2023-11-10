@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.gradle.tasks
 
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
@@ -118,6 +117,13 @@ abstract class Kotlin2JsCompile @Inject constructor(
      */
     @get:Internal
     internal var executionTimeFreeCompilerArgs: List<String>? = null
+
+    @get:Deprecated(
+        message = "Task.moduleName is not used in Kotlin/JS"
+    )
+    @get:Optional
+    @get:Input
+    abstract override val moduleName: Property<String>
 
     @get:Nested
     override val multiplatformStructure: K2MultiplatformStructure = objectFactory.newInstance()
