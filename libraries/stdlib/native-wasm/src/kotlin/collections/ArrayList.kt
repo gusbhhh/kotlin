@@ -5,7 +5,7 @@
 
 package kotlin.collections
 
-actual class ArrayList<E> private constructor(
+public actual class ArrayList<E> private constructor(
     private var backingArray: Array<E>,
     private var offset: Int,
     private var length: Int,
@@ -24,7 +24,7 @@ actual class ArrayList<E> private constructor(
     /**
      * Creates a new empty [ArrayList].
      */
-    actual constructor() : this(10)
+    public actual constructor() : this(10)
 
     /**
      * Creates a new empty [ArrayList] with the specified initial capacity.
@@ -38,7 +38,7 @@ actual class ArrayList<E> private constructor(
      *
      * @throws IllegalArgumentException if [initialCapacity] is negative.
      */
-    actual constructor(initialCapacity: Int) : this(
+    public actual constructor(initialCapacity: Int) : this(
             arrayOfUninitializedElements(initialCapacity), 0, 0, false, null, null)
 
     /**
@@ -46,7 +46,7 @@ actual class ArrayList<E> private constructor(
      *
      * The iteration order of elements in the created list is the same as in the specified collection.
      */
-    actual constructor(elements: Collection<E>) : this(elements.size) {
+    public actual constructor(elements: Collection<E>) : this(elements.size) {
         addAll(elements)
     }
 
@@ -182,14 +182,14 @@ actual class ArrayList<E> private constructor(
         return ArrayList(backingArray, offset + fromIndex, toIndex - fromIndex, isReadOnly, this, root ?: this)
     }
 
-    actual fun trimToSize() {
+    public actual fun trimToSize() {
         if (backingList != null) throw IllegalStateException() // just in case somebody casts subList to ArrayList
         registerModification()
         if (length < backingArray.size)
             backingArray = backingArray.copyOfUninitializedElements(length)
     }
 
-    final actual fun ensureCapacity(minCapacity: Int) {
+    public final actual fun ensureCapacity(minCapacity: Int) {
         if (backingList != null) throw IllegalStateException() // just in case somebody casts subList to ArrayList
         if (minCapacity <= backingArray.size) return
         registerModification()

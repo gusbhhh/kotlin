@@ -17,7 +17,7 @@ import kotlin.js.arrayBufferIsView
 public actual inline fun <T> Array<out T>?.orEmpty(): Array<out T> = this ?: emptyArray<T>()
 
 /**
- * Returns a *typed* array containing all of the elements of this collection.
+ * Returns a *typed* array containing all the elements of this collection.
  *
  * Allocates an array of runtime type `T` having its size equal to the size of this collection
  * and populates the array with the elements of this collection.
@@ -225,7 +225,7 @@ internal actual fun checkCountOverflow(count: Int): Int {
  * JS map and set implementations do not make use of capacities or load factors.
  */
 @PublishedApi
-internal actual fun mapCapacity(expectedSize: Int) = expectedSize
+internal actual fun mapCapacity(expectedSize: Int): Int = expectedSize
 
 /**
  * Checks a collection builder function capacity argument.
