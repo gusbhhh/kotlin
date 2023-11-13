@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.gradle.mpp.smoke
 import org.gradle.api.logging.LogLevel
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.report.BuildReportType
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.replaceFirst
 import org.junit.jupiter.api.DisplayName
@@ -30,7 +29,8 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
         build("assemble")
 
         fun testCase(
-            incrementalPath: Path? = null, executedTasks: Set<String>, assertions: BuildResult.() -> Unit = {}) {
+            incrementalPath: Path? = null, executedTasks: Set<String>, assertions: BuildResult.() -> Unit = {},
+        ) {
             build("assemble", buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
                 assertSuccessOrUTD(
                     executedTasks = executedTasks
@@ -61,10 +61,9 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
 
         val appJvmClassKt = touchAndGet("app", "jvmMain", "PlainPublicClassJvm.kt")
         testCase(
-            incrementalPath = null,
+            incrementalPath = null, //TODO: it just doesn't print "Incremental compilation completed", why?
             executedTasks = setOf(":app:compileKotlinJvm")
         ) {
-            //TODO: it just doesn't print "Incremental compilation completed", why?
             assertCompiledKotlinSources(listOf(appJvmClassKt).relativizeTo(projectPath), output)
         }
 
@@ -83,10 +82,9 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
 
         touchAndGet("app", "nativeMain", "PlainPublicClassNative.kt")
         testCase(
-            incrementalPath = null,
+            incrementalPath = null, // no native incremental compilation - see KT-62824
             executedTasks = setOf(":app:compileKotlinNative"),
         )
-        // no native incremental compilation - see KT-62824
 
         /**
          * Step 5: touch lib:common, no abi change
@@ -103,9 +101,9 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
 
         val libJvmUtilKt = touchAndGet("lib", "jvmMain", "libJvmPlatformUtil.kt")
         testCase(
+            incrementalPath = null, //TODO: it just doesn't print "Incremental compilation completed", why?
             executedTasks = setOf(":app:compileKotlinJvm", ":lib:compileKotlinJvm"),
         ) {
-            //TODO: it just doesn't print "Incremental compilation completed", why?
             assertCompiledKotlinSources(listOf(libJvmUtilKt).relativizeTo(projectPath), output)
         }
 
@@ -129,8 +127,6 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
         )
     }
 
-    //TODO type code
-    //TODO drop a "fix whitespace" on file
     //TODO review fun names / display names
 
     @DisplayName("KMP tests are rebuilt appropriately")
@@ -171,6 +167,8 @@ open class BasicIncrementalCompilationIT : KGPBaseTest() {
                 ).relativizeTo(projectPath)
             )
         }
+
+        //TODO touch platform stuff, rebuild platform stuff
     }
 
     private fun withProject(gradleVersion: GradleVersion, test: TestProject.() -> Unit): Unit {
