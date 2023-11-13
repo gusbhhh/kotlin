@@ -100,6 +100,16 @@ abstract class Kotlin2JsCompile @Inject constructor(
     @get:Internal
     internal abstract val defaultDestinationDirectory: DirectoryProperty
 
+    // To be sure that outputFileProperty will be correct on transition period
+    @get:Internal
+    internal abstract val _outputFileProperty: Property<File>
+
+    // hidden to keep ABI compatiblity, because we have plugins which still use outputFileProperty
+    @Deprecated("Use destinationDirectory and moduleName instead", level = DeprecationLevel.HIDDEN)
+    @get:Internal
+    val outputFileProperty: Property<File>
+        get() = _outputFileProperty
+
     // Workaround to add additional compiler args based on the exising one
     // Currently there is a logic to add additional compiler arguments based on already existing one.
     // And it is not possible to update compilerOptions.freeCompilerArgs using some kind of .map

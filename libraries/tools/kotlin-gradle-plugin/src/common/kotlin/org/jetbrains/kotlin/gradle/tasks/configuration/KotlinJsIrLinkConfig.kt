@@ -45,6 +45,8 @@ internal open class KotlinJsIrLinkConfig(
                     .map { it.dir(NpmProject.DIST_FOLDER) }
             )
             task.compilerOptions.moduleName.set(project.provider { compilation.npmProject.name })
+
+            task._outputFileProperty.convention(binary.mainFilePath.map { it.toFile() })
         }
     }
 
