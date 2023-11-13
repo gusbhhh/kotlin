@@ -16,7 +16,8 @@ package kotlin.text
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @SinceKotlin("1.9")
-public actual fun StringBuilder.append(value: Byte): StringBuilder = this.append(value.toInt())
+@kotlin.internal.InlineOnly
+public actual inline fun StringBuilder.append(value: Byte): StringBuilder = this.append(value.toInt())
 
 /**
  * Appends the string representation of the specified short [value] to this string builder and returns this instance.
@@ -26,7 +27,8 @@ public actual fun StringBuilder.append(value: Byte): StringBuilder = this.append
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @SinceKotlin("1.9")
-public actual fun StringBuilder.append(value: Short): StringBuilder = this.append(value.toInt())
+@kotlin.internal.InlineOnly
+public actual inline fun StringBuilder.append(value: Short): StringBuilder = this.append(value.toInt())
 
 /**
  * Inserts the string representation of the specified byte [value] into this string builder at the specified [index] and returns this instance.
@@ -38,7 +40,8 @@ public actual fun StringBuilder.append(value: Short): StringBuilder = this.appen
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @SinceKotlin("1.9")
-public actual fun StringBuilder.insert(index: Int, value: Byte): StringBuilder = this.insert(index, value.toInt())
+@kotlin.internal.InlineOnly
+public actual inline fun StringBuilder.insert(index: Int, value: Byte): StringBuilder = this.insert(index, value.toInt())
 
 /**
  * Inserts the string representation of the specified short [value] into this string builder at the specified [index] and returns this instance.
@@ -50,7 +53,8 @@ public actual fun StringBuilder.insert(index: Int, value: Byte): StringBuilder =
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @SinceKotlin("1.9")
-public actual fun StringBuilder.insert(index: Int, value: Short): StringBuilder = this.insert(index, value.toInt())
+@kotlin.internal.InlineOnly
+public actual inline fun StringBuilder.insert(index: Int, value: Short): StringBuilder = this.insert(index, value.toInt())
 
 /**
  * Clears the content of this string builder making it empty and returns this instance.
