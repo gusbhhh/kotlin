@@ -105,7 +105,7 @@ class SerializationFirDeclarationsForMetadataProvider(session: FirSession) : Fir
         }.apply { replaceAnnotations(listOfNotNull(createJvmStaticAnnotation())) }
     }
 
-    private fun createJvmStaticAnnotation(): FirAnnotation? {
+    private fun FirDeclaration.createJvmStaticAnnotation(): FirAnnotation? {
         val jvmStatic =
             session.symbolProvider.getClassLikeSymbolByClassId(JvmStandardClassIds.Annotations.JvmStatic) as? FirRegularClassSymbol
                 ?: return null
@@ -118,6 +118,8 @@ class SerializationFirDeclarationsForMetadataProvider(session: FirSession) : Fir
                 name = jvmStatic.name
                 resolvedSymbol = jvmStaticCtor
             }
+
+            containingDeclarationSymbol = this@createJvmStaticAnnotation.symbol
         }
     }
 }

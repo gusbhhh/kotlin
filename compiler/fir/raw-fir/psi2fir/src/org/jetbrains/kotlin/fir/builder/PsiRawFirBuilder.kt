@@ -866,6 +866,7 @@ open class PsiRawFirBuilder(
                             }
                             entry.extractArgumentsTo(this)
                             typeArguments.appendTypeArguments(entry.typeArguments)
+                            containingDeclarationSymbol = this@buildTypeParameter.symbol
                         }
                     }
                 }
@@ -2282,6 +2283,7 @@ open class PsiRawFirBuilder(
                     this.name = name
                 }
                 typeArguments.appendTypeArguments(annotationEntry.typeArguments)
+                containingDeclarationSymbol = context.containerSymbolStack.lastOrNull()
             }
         }
 

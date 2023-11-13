@@ -401,6 +401,7 @@ class LightTreeRawFirDeclarationBuilder(
                 calleeReference = theCalleeReference
                 extractArgumentsFrom(constructorCalleePair.second)
                 typeArguments += qualifier?.typeArgumentList?.typeArguments ?: listOf()
+                containingDeclarationSymbol = context.containerSymbolStack.lastOrNull()
             }
         } else {
             buildErrorAnnotationCall {
@@ -411,6 +412,7 @@ class LightTreeRawFirDeclarationBuilder(
                 calleeReference = theCalleeReference
                 extractArgumentsFrom(constructorCalleePair.second)
                 typeArguments += qualifier?.typeArgumentList?.typeArguments ?: listOf()
+                containingDeclarationSymbol = context.containerSymbolStack.lastOrNull()
             }
         }
     }
