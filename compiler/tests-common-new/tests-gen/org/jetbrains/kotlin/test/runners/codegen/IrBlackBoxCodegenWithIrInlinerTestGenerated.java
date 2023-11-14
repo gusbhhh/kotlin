@@ -29174,6 +29174,12 @@ public class IrBlackBoxCodegenWithIrInlinerTestGenerated extends AbstractIrBlack
         }
 
         @Test
+        @TestMetadata("complexBooleanConstant.kt")
+        public void testComplexBooleanConstant() throws Exception {
+            runTest("compiler/testData/codegen/box/involvesIrInterpreter/complexBooleanConstant.kt");
+        }
+
+        @Test
         @TestMetadata("doubleOperations.kt")
         public void testDoubleOperations() throws Exception {
             runTest("compiler/testData/codegen/box/involvesIrInterpreter/doubleOperations.kt");
