@@ -26,6 +26,8 @@ abstract class FirPlatformClassMapper : FirSessionComponent {
         override fun getCorrespondingKotlinClass(classId: ClassId?): ClassId? {
             return null
         }
+
+        override val aliasesSafeToRemove: Map<ClassId, ClassId> = emptyMap()
     }
 
     abstract fun getCorrespondingPlatformClass(declaration: FirClassLikeDeclaration): FirRegularClass?
@@ -33,6 +35,8 @@ abstract class FirPlatformClassMapper : FirSessionComponent {
     abstract fun getCorrespondingPlatformClass(classId: ClassId?): ClassId?
 
     abstract fun getCorrespondingKotlinClass(classId: ClassId?): ClassId?
+
+    abstract val aliasesSafeToRemove: Map<ClassId, ClassId>
 }
 
 val FirSession.platformClassMapper: FirPlatformClassMapper by FirSession.sessionComponentAccessor()

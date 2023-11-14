@@ -170,6 +170,8 @@ object StandardClassIds {
 
         val Test = "Test".testId()
 
+        val ThrowsAlias = "Throws".baseId()
+
         val RawTypeAnnotation = "RawType".internalIrId()
         val FlexibleNullability = "FlexibleNullability".internalIrId()
         val FlexibleMutability = "FlexibleMutability".internalIrId()

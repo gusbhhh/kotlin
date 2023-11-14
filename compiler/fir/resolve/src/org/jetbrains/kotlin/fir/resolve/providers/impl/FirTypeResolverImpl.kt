@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.fir.resolve.calls.ResolutionDiagnostic
 import org.jetbrains.kotlin.fir.resolve.diagnostics.*
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.resolve.transformers.ScopeClassDeclaration
+import org.jetbrains.kotlin.fir.scopes.platformClassMapper
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.*
@@ -133,6 +134,8 @@ class FirTypeResolverImpl(private val session: FirSession) : FirTypeResolver() {
             }
         }
 
+        filterOutAliasesSafeToRemove(candidates)
+
         val candidateCount = candidates.size
         return when {
             candidateCount == 1 -> {
@@ -146,6 +149,25 @@ class FirTypeResolverImpl(private val session: FirSession) : FirTypeResolver() {
                 TypeResolutionResult.Unresolved
             }
             else -> error("Unexpected")
+        }
+    }
+
+    // Handling of the special case when both `kotlin.Throws` and `kotlin.jvm.Throws` (or `kotlin.native.Throws`) don't cause ambiguity
+    private fun filterOutAliasesSafeToRemove(candidates: MutableSet<TypeCandidate>) {
+        if (candidates.size <= 1) return
+
+        val aliasesToRemove = mutableSetOf<ClassId>()
+        val aliasesSafeToRemove = session.platformClassMapper.aliasesSafeToRemove
+        for (candidate in candidates) {
+            val symbol = candidate.symbol
+            if (symbol is FirClassLikeSymbol<*>) {
+                aliasesSafeToRemove[symbol.classId]?.let { aliasesToRemove.add(it) }
+            }
+        }
+        if (aliasesToRemove.isNotEmpty()) {
+            candidates.removeAll {
+                (it.symbol as? FirClassLikeSymbol)?.classId?.let { classId -> aliasesToRemove.contains(classId) } == true
+            }
         }
     }
 
