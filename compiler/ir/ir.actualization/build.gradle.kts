@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":compiler:util"))
-    api(project(":compiler:backend-common"))
-    api(project(":compiler:ir.tree"))
-    api(project(":compiler:ir.backend.common"))
+    implementation(project(":compiler:util"))
+    implementation(project(":compiler:ir.tree"))
+    implementation(project(":compiler:resolution.common"))
+    implementation(project(":compiler:frontend"))
     compileOnly(intellijCore())
 }
 
