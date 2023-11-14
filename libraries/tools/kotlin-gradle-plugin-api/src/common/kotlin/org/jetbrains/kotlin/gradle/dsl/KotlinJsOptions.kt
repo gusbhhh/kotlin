@@ -29,14 +29,6 @@ interface KotlinJsOptions : org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions 
         get() = options.main.get().mainKotlinOption
         set(value) = options.main.set(value.mainCompilerOption)
 
-    /**
-     * Generate .meta.js and .kjsm files with metadata. Use to create a library
-     * Default value: true
-     */
-    var metaInfo: kotlin.Boolean
-        get() = options.metaInfo.get()
-        set(value) = options.metaInfo.set(value)
-
     private val kotlin.String.moduleKindCompilerOption get() = org.jetbrains.kotlin.gradle.dsl.JsModuleKind.fromKind(this)
 
     private val org.jetbrains.kotlin.gradle.dsl.JsModuleKind.moduleKindKotlinOption get() = this.kind
@@ -57,14 +49,6 @@ interface KotlinJsOptions : org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions 
     var moduleName: kotlin.String?
         get() = options.moduleName.orNull
         set(value) = options.moduleName.set(value)
-
-    /**
-     * Don't automatically include the default Kotlin/JS stdlib into compilation dependencies
-     * Default value: true
-     */
-    var noStdlib: kotlin.Boolean
-        get() = options.noStdlib.get()
-        set(value) = options.noStdlib.set(value)
 
     /**
      * Generate source map
