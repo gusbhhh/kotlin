@@ -1,0 +1,2 @@
+FILE: incompleteFor.kt
+    public? final? fun someFun(): R|kotlin/Unit| { LAZY_BLOCK }

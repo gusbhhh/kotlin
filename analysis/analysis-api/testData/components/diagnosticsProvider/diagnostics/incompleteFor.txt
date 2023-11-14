@@ -1,0 +1,4 @@
+Diagnostics from elements:
+  for PSI element of type KtForExpression at (3,5) - (4,1)
+    ITERATOR_MISSING      text ranges: [(35,45)]
+      PSI: KtForExpression at (3,5) - (4,1)
