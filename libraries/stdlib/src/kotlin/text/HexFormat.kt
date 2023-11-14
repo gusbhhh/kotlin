@@ -296,7 +296,7 @@ public class HexFormat internal constructor(
                     field = value
                 }
 
-            /** Defines [NumberHexFormat.removeLeadingZeros] of the format being built, empty string by default. */
+            /** Defines [NumberHexFormat.removeLeadingZeros] of the format being built, `false` by default. */
             public var removeLeadingZeros: Boolean = Default.removeLeadingZeros
 
             internal fun build(): NumberHexFormat {
