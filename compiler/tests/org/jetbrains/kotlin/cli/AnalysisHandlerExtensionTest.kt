@@ -69,9 +69,9 @@ class AnalysisHandlerExtensionTest : TestCaseWithTmpdir() {
         val args = listOf("-Xplugin=$plugin", mainKt.absolutePath)
         val outputPath = if (compiler is K2JSCompiler)
             listOf(
-                "-Xforce-deprecated-legacy-compiler-usage",
                 "-language-version", "1.9",
-                "-output", tmpdir.resolve("out.js").absolutePath
+                "-ir-output-dir", tmpdir.normalize().absolutePath,
+                "-ir-output-name", "out"
             )
         else
             listOf(
