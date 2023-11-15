@@ -52,6 +52,18 @@ public class FirSourceLazyBodiesCalculatorTestGenerated extends AbstractFirSourc
         }
 
         @Test
+        @TestMetadata("annotationOnSuperType.kt")
+        public void testAnnotationOnSuperType() throws Exception {
+            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/annotationOnSuperType.kt");
+        }
+
+        @Test
+        @TestMetadata("annotationOnSuperTypeCall.kt")
+        public void testAnnotationOnSuperTypeCall() throws Exception {
+            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/annotationOnSuperTypeCall.kt");
+        }
+
+        @Test
         @TestMetadata("annotationsOnNullableParenthesizedTypes.kt")
         public void testAnnotationsOnNullableParenthesizedTypes() throws Exception {
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/annotationsOnNullableParenthesizedTypes.kt");
@@ -109,6 +121,12 @@ public class FirSourceLazyBodiesCalculatorTestGenerated extends AbstractFirSourc
         @TestMetadata("delegates.kt")
         public void testDelegates() throws Exception {
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/delegates.kt");
+        }
+
+        @Test
+        @TestMetadata("delegatesWithAnnotations.kt")
+        public void testDelegatesWithAnnotations() throws Exception {
+            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/delegatesWithAnnotations.kt");
         }
 
         @Test

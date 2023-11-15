@@ -1,0 +1,56 @@
+FILE: delegatesWithAnnotations.kt
+    @Anno(<strcat>(String(x annotation ), x#)) public? final? val x: Intby lazy#(<L> = lazy@fun <implicit>.<anonymous>(): <implicit> <inline=Unknown>  {
+        IntegerLiteral(1).plus#(IntegerLiteral(2))
+    }
+    )
+        public? get(): <implicit> {
+            ^ D|/x|.getValue#(Null(null), ::R|/x|)
+        }
+    @Anno(<strcat>(String(delegate annotation ), x#)) field:@PROPERTY_DELEGATE_FIELD:Anno(<strcat>(String(delegate: delegate annotation ), x#)) public? final? val delegate: <implicit> = object : ReadWriteProperty<@Anno(<strcat>(String(ReadWriteProperty first type argument ), x#)) Any?, @Anno(<strcat>(String(ReadWriteProperty second type argument ), x#)) Int> {
+        private [ContainingClassKey=<anonymous>] constructor(): R|<anonymous>| {
+            super<<implicit>>()
+        }
+
+        @Anno(<strcat>(String(getValue ), x#)) public? open? override fun getValue(thisRef: Any?, property: KProperty<*>): @Anno(<strcat>(String(getValue return type ), x#)) Int {
+            ^getValue IntegerLiteral(1)
+        }
+
+        @Anno(<strcat>(String(setValue ), x#)) public? open? override fun setValue(thisRef: Any?, property: KProperty<*>, value: @Anno(<strcat>(String(setValue value parameter type ), x#)) Int): R|kotlin/Unit| {
+        }
+
+    }
+
+        public? get(): <implicit>
+    @Anno(<strcat>(String(value annotation ), x#)) field:@PROPERTY_DELEGATE_FIELD:Anno(<strcat>(String(delegate: value annotation ), x#)) public? final? val value: <implicit>by delegate#
+        @PROPERTY_GETTER:Anno(<strcat>(String(get: value annotation ), x#)) public? get(): <implicit> {
+            ^ D|/value|.getValue#(Null(null), ::R|/value|)
+        }
+    @Anno(<strcat>(String(variable annotation ), x#)) field:@PROPERTY_DELEGATE_FIELD:Anno(<strcat>(String(delegate: value annotation ), x#)) public? final? var variable: <implicit>by delegate#
+        @PROPERTY_GETTER:Anno(<strcat>(String(get: value annotation ), x#)) public? get(): <implicit> {
+            ^ D|/variable|.getValue#(Null(null), ::R|/variable|)
+        }
+        @PROPERTY_SETTER:Anno(<strcat>(String(set: value annotation ), x#)) public? set(@SETTER_PARAMETER:Anno(<strcat>(String(setparam: value annotation ), x#)) <set-?>: <implicit>): R|kotlin/Unit| {
+            ^ D|/variable|.setValue#(Null(null), ::R|/variable|, R|<local>/variable|)
+        }
+    public? final? interface Base : R|kotlin/Any| {
+    }
+    @Anno(<strcat>(String(Derived ), x#)) public? final? data [DelegateFieldsMapKey={0=FirFieldSymbol /Derived.$$delegate_0}] class Derived : @Anno(<strcat>(String(Base super type ), x#)) Base {
+        @Anno(<strcat>(String(Derived constructor ), x#)) public? [ContainingClassKey=Derived] constructor([CorrespondingProperty=/Derived.b] @Anno(<strcat>(String(b ), x#)) @CONSTRUCTOR_PARAMETER:Anno(<strcat>(String(param: b ), x#)) b: @Anno(<strcat>(String(Derived b parameter type ), x#)) Base, [CorrespondingProperty=/Derived.c] c: @Anno(<strcat>(String(Derived c parameter type ), x#)) Base): R|Derived| {
+            super<<implicit>>()
+        }
+
+        private final field $$delegate_0: @Anno(<strcat>(String(Base super type ), x#)) Base = b#
+
+        @Anno(<strcat>(String(b ), x#)) @PROPERTY:Anno(<strcat>(String(property: b ), x#)) public? final? [ComponentFunctionSymbolKey=/Derived.component1, IsFromPrimaryConstructor=true] val b: @Anno(<strcat>(String(Derived b parameter type ), x#)) Base = R|<local>/b|
+            @PROPERTY_GETTER:Anno(<strcat>(String(get: b ), x#)) public? [ContainingClassKey=Derived] get(): @Anno(<strcat>(String(Derived b parameter type ), x#)) Base
+
+        public? final? [ComponentFunctionSymbolKey=/Derived.component2, IsFromPrimaryConstructor=true] val c: @Anno(<strcat>(String(Derived c parameter type ), x#)) Base = R|<local>/c|
+            public? [ContainingClassKey=Derived] get(): @Anno(<strcat>(String(Derived c parameter type ), x#)) Base
+
+        public? final operator fun component1(): @Anno(<strcat>(String(Derived b parameter type ), x#)) Base
+
+        public? final operator fun component2(): @Anno(<strcat>(String(Derived c parameter type ), x#)) Base
+
+        public final fun copy(@Anno(<strcat>(String(b ), x#)) @Anno(<strcat>(String(param: b ), x#)) b: @Anno(<strcat>(String(Derived b parameter type ), x#)) Base = this@R|/Derived|.R|/Derived.b|, c: @Anno(<strcat>(String(Derived c parameter type ), x#)) Base = this@R|/Derived|.R|/Derived.c|): R|Derived|
+
+    }

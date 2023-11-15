@@ -25,7 +25,7 @@ interface DestructuringContext<T> {
     fun T.extractAnnotationsTo(target: FirAnnotationContainerBuilder)
 }
 
-context(DestructuringContext<T>)
+context(AbstractRawFirBuilder<*>, DestructuringContext<T>)
 fun <T> MutableList<FirStatement>.addDestructuringStatements(
     moduleData: FirModuleData,
     container: FirVariable,
@@ -39,17 +39,19 @@ fun <T> MutableList<FirStatement>.addDestructuringStatements(
     }
     for ((index, entry) in entries.withIndex()) {
         this += buildProperty {
-            this.moduleData = moduleData
-            origin = FirDeclarationOrigin.Source
-            returnTypeRef = entry.returnTypeRef
-            name = entry.name
-            initializer = container.toComponentCall(entry.source, index)
-            this.isVar = isVar
             symbol = FirPropertySymbol(entry.name)
-            source = entry.source
-            isLocal = localEntries
-            status = FirDeclarationStatusImpl(if (localEntries) Visibilities.Local else Visibilities.Public, Modality.FINAL)
-            entry.extractAnnotationsTo(this)
+            withContainerSymbol(symbol) {
+                this.moduleData = moduleData
+                origin = FirDeclarationOrigin.Source
+                returnTypeRef = entry.returnTypeRef
+                name = entry.name
+                initializer = container.toComponentCall(entry.source, index)
+                this.isVar = isVar
+                source = entry.source
+                isLocal = localEntries
+                status = FirDeclarationStatusImpl(if (localEntries) Visibilities.Local else Visibilities.Public, Modality.FINAL)
+                entry.extractAnnotationsTo(this)
+            }
         }
     }
 }

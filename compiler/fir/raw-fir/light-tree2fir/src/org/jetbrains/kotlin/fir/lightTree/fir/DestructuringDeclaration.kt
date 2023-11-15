@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.fir.lightTree.fir
 
 import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.fir.FirModuleData
+import org.jetbrains.kotlin.fir.builder.AbstractRawFirBuilder
 import org.jetbrains.kotlin.fir.builder.DestructuringContext
 import org.jetbrains.kotlin.fir.builder.FirAnnotationContainerBuilder
 import org.jetbrains.kotlin.fir.builder.addDestructuringStatements
@@ -27,6 +28,7 @@ data class DestructuringDeclaration(
     val source: KtSourceElement,
     val annotations: List<FirAnnotation>,
 ) {
+    context(AbstractRawFirBuilder<*>)
     fun toFirDestructingDeclaration(
         moduleData: FirModuleData,
         tmpVariable: Boolean = true,
@@ -62,6 +64,7 @@ class DestructuringEntry(
     }
 }
 
+context(AbstractRawFirBuilder<*>)
 fun MutableList<FirStatement>.addDestructuringStatements(
     moduleData: FirModuleData,
     multiDeclaration: DestructuringDeclaration,
