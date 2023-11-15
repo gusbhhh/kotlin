@@ -45,17 +45,17 @@ val allBirPhases = listOf<Pair<(JvmBirBackendContext) -> BirLoweringPhase, List<
     ::BirJvmInventNamesForLocalClassesLowering to listOf("InventNamesForLocalClasses"),
     ::BirInlineCallableReferenceToLambdaLowering to listOf("InlineCallableReferenceToLambdaPhase"),
     ::BirDirectInvokeLowering to listOf("DirectInvokes"),
-    //::BirAnnotationLowering to listOf("Annotation"),
+    ::BirAnnotationLowering to listOf("Annotation"),
 )
 
 private val excludedPhases = setOf<String>(
-    //"Bir2Ir",
-    //"Terminate",
+    "Bir2Ir",
+    "Terminate",
 
     // This phase removes annotation constructors, but they are still being used,
     // which causes an exception in BIR. It works in IR because removed constructors
     // still have their parent property set.
-    "Annotation",
+    //"Annotation",
     // This phase is not implemented, as it is hardly ever relevant.
     "AnnotationImplementation",
 )
