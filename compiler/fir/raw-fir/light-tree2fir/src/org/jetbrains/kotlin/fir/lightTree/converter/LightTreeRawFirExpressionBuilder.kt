@@ -1166,7 +1166,7 @@ class LightTreeRawFirExpressionBuilder(
                 rangeSource,
                 SpecialNames.ITERATOR,
                 buildFunctionCall {
-                    source = rangeSource
+                    source = rangeSource ?: fakeSource
                     calleeReference = buildSimpleNamedReference {
                         source = rangeSource ?: fakeSource
                         name = OperatorNameConventions.ITERATOR
@@ -1178,7 +1178,7 @@ class LightTreeRawFirExpressionBuilder(
             statements += FirWhileLoopBuilder().apply {
                 source = fakeSource
                 condition = buildFunctionCall {
-                    source = rangeSource
+                    source = rangeSource ?: fakeSource
                     calleeReference = buildSimpleNamedReference {
                         source = rangeSource ?: fakeSource
                         name = OperatorNameConventions.HAS_NEXT
@@ -1198,7 +1198,7 @@ class LightTreeRawFirExpressionBuilder(
                         valueParameter.source,
                         if (multiDeclaration != null) SpecialNames.DESTRUCT else valueParameter.name,
                         buildFunctionCall {
-                            source = rangeSource
+                            source = rangeSource ?: fakeSource
                             calleeReference = buildSimpleNamedReference {
                                 source = rangeSource ?: fakeSource
                                 name = OperatorNameConventions.NEXT

@@ -202,12 +202,6 @@ public class FirSourceLazyBodiesCalculatorTestGenerated extends AbstractFirSourc
         }
 
         @Test
-        @TestMetadata("incompleteFor.kt")
-        public void testIncompleteFor() throws Exception {
-            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/incompleteFor.kt");
-        }
-
-        @Test
         @TestMetadata("initBlockWithDeclarations.kt")
         public void testInitBlockWithDeclarations() throws Exception {
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/initBlockWithDeclarations.kt");

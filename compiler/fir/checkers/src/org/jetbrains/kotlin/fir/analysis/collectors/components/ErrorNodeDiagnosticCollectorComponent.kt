@@ -69,6 +69,11 @@ class ErrorNodeDiagnosticCollectorComponent(
             diagnostic is ConeUnresolvedNameError
         ) return
 
+        if (source == null && diagnostic is ConeSimpleDiagnostic && diagnostic.kind == DiagnosticKind.ExpressionExpected) {
+            // This is a symptom of some syntax error that was already reported during parsing.
+            return
+        }
+
         // If the receiver cannot be resolved, we skip reporting any further problems for this call.
         if (callOrAssignment is FirQualifiedAccessExpression) {
             if (callOrAssignment.dispatchReceiver.cannotBeResolved() ||
