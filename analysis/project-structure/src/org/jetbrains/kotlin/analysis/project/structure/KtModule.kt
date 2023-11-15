@@ -241,6 +241,12 @@ public interface KtDanglingFileModule : KtModule {
         get() = "Temporary file"
 }
 
+public val KtDanglingFileModule.isCacheable: Boolean
+    get() {
+        val file = file ?: return false
+        return file.isPhysical && file.viewProvider.isEventSystemEnabled
+    }
+
 /**
  * A set of sources which live outside the project content root. E.g, testdata files or source files of some other project.
  */
