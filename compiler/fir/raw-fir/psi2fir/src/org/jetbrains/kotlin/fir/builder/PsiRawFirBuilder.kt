@@ -712,15 +712,7 @@ open class PsiRawFirBuilder(
             this@PsiRawFirBuilder.context.pushContainerSymbol(propertySymbol)
 
             val propertySource = toFirSourceElement(KtFakeSourceElementKind.PropertyFromParameter)
-            // We can't just reuse a type from firParameter to avoid annotation leak.
-            val type = (typeReference?.toFirType() ?: createNoTypeForParameterTypeRef(propertySource)).let {
-                if (it is FirErrorTypeRef && firParameter.isVararg) {
-                    it.wrapIntoArray()
-                } else {
-                    it
-                }
-            }
-
+            val type = firParameter.returnTypeRef
             val parameterAnnotations = mutableListOf<FirAnnotationCall>()
             for (annotationEntry in annotationEntries) {
                 parameterAnnotations += annotationEntry.convert<FirAnnotationCall>()
