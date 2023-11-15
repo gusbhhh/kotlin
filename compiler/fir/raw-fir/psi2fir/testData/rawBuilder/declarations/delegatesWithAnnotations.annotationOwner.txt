@@ -73,6 +73,7 @@ context -> FirPropertySymbol /Derived.b
 context -> FirPropertyAccessorSymbol special/accessor from FirPropertySymbol /Derived.b
 context -> FirBackingFieldSymbol <local>/field from FirPropertySymbol /Derived.b
 context -> FirNamedFunctionSymbol /Derived.component1
+context -> FirValueParameterSymbol <local>/b from FirNamedFunctionSymbol /Derived.copy
 
 @Anno(<strcat>(String(b ), x#))
 owner -> FirConstructorSymbol /Derived.Derived
@@ -89,6 +90,7 @@ context -> FirPropertySymbol /Derived.c
 context -> FirPropertyAccessorSymbol special/accessor from FirPropertySymbol /Derived.c
 context -> FirBackingFieldSymbol <local>/field from FirPropertySymbol /Derived.c
 context -> FirNamedFunctionSymbol /Derived.component2
+context -> FirValueParameterSymbol <local>/c from FirNamedFunctionSymbol /Derived.copy
 
 @Anno(<strcat>(String(Derived constructor ), x#))
 owner -> FirConstructorSymbol /Derived.Derived
@@ -111,10 +113,6 @@ context -> FirPropertySymbol /Derived.b
 owner -> FirPropertySymbol /Derived.b
 context -> FirPropertySymbol /Derived.b
 
-@Anno(<strcat>(String(Derived b parameter type ), x#))
-owner -> FirRegularClassSymbol Derived
-context -> FirValueParameterSymbol <local>/b from FirNamedFunctionSymbol /Derived.copy
-
 @Anno(<strcat>(String(b ), x#))
 owner -> FirRegularClassSymbol Derived
 context -> FirValueParameterSymbol <local>/b from FirNamedFunctionSymbol /Derived.copy
@@ -122,10 +120,6 @@ context -> FirValueParameterSymbol <local>/b from FirNamedFunctionSymbol /Derive
 @Anno(<strcat>(String(param: b ), x#))
 owner -> FirRegularClassSymbol Derived
 context -> FirValueParameterSymbol <local>/b from FirNamedFunctionSymbol /Derived.copy
-
-@Anno(<strcat>(String(Derived c parameter type ), x#))
-owner -> FirRegularClassSymbol Derived
-context -> FirValueParameterSymbol <local>/c from FirNamedFunctionSymbol /Derived.copy
 
 @Anno(<strcat>(String(Derived ), x#))
 owner -> FirRegularClassSymbol Derived
