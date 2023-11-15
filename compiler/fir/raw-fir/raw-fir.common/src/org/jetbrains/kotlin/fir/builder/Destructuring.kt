@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirVariable
+import org.jetbrains.kotlin.fir.declarations.builder.FirPropertyBuilder
 import org.jetbrains.kotlin.fir.declarations.builder.buildProperty
 import org.jetbrains.kotlin.fir.declarations.impl.FirDeclarationStatusImpl
 import org.jetbrains.kotlin.fir.expressions.FirStatement
@@ -22,7 +23,7 @@ interface DestructuringContext<T> {
     val T.returnTypeRef: FirTypeRef
     val T.name: Name
     val T.source: KtSourceElement
-    fun T.extractAnnotationsTo(target: FirAnnotationContainerBuilder)
+    fun T.extractAnnotationsTo(target: FirPropertyBuilder)
 }
 
 context(AbstractRawFirBuilder<*>, DestructuringContext<T>)

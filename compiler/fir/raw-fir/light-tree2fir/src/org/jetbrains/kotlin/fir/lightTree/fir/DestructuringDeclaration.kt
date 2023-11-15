@@ -9,12 +9,14 @@ import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.fir.builder.AbstractRawFirBuilder
 import org.jetbrains.kotlin.fir.builder.DestructuringContext
-import org.jetbrains.kotlin.fir.builder.FirAnnotationContainerBuilder
 import org.jetbrains.kotlin.fir.builder.addDestructuringStatements
 import org.jetbrains.kotlin.fir.declarations.FirVariable
+import org.jetbrains.kotlin.fir.declarations.builder.FirPropertyBuilder
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation
+import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirStatement
+import org.jetbrains.kotlin.fir.expressions.builder.buildAnnotationCallCopy
 import org.jetbrains.kotlin.fir.expressions.builder.buildBlock
 import org.jetbrains.kotlin.fir.generateTemporaryVariable
 import org.jetbrains.kotlin.fir.types.FirTypeRef
@@ -51,15 +53,19 @@ class DestructuringEntry(
     val source: KtSourceElement,
     val returnTypeRef: FirTypeRef,
     val name: Name,
-    val annotations: List<FirAnnotation>,
+    val annotations: List<FirAnnotationCall>,
 ) {
     @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     companion object : DestructuringContext<DestructuringEntry> {
         override val DestructuringEntry.returnTypeRef: FirTypeRef get() = returnTypeRef
         override val DestructuringEntry.name: Name get() = name
         override val DestructuringEntry.source: KtSourceElement get() = source
-        override fun DestructuringEntry.extractAnnotationsTo(target: FirAnnotationContainerBuilder) {
-            target.annotations += annotations
+        override fun DestructuringEntry.extractAnnotationsTo(target: FirPropertyBuilder) {
+            target.annotations += annotations.map {
+                buildAnnotationCallCopy(it) {
+                    containingDeclarationSymbol = target.symbol
+                }
+            }
         }
     }
 }

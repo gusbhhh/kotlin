@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2022 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
@@ -141,8 +141,12 @@ class LightTreeRawFirExpressionBuilder(
 
             OBJECT_LITERAL -> declarationBuilder.convertObjectLiteral(expression)
             FUN -> declarationBuilder.convertFunctionDeclaration(expression)
-            DESTRUCTURING_DECLARATION -> declarationBuilder.convertDestructingDeclaration(expression).toFirDestructingDeclaration(baseModuleData)
-            else -> buildErrorExpression(expression.toFirSourceElement(KtFakeSourceElementKind.ErrorTypeRef), ConeSimpleDiagnostic(errorReason, DiagnosticKind.ExpressionExpected))
+            DESTRUCTURING_DECLARATION -> declarationBuilder.convertDestructingDeclaration(expression)
+                .toFirDestructingDeclaration(baseModuleData)
+            else -> buildErrorExpression(
+                expression.toFirSourceElement(KtFakeSourceElementKind.ErrorTypeRef),
+                ConeSimpleDiagnostic(errorReason, DiagnosticKind.ExpressionExpected)
+            )
         }
     }
 
@@ -156,9 +160,14 @@ class LightTreeRawFirExpressionBuilder(
         var hasArrow = false
 
         val functionSymbol = FirAnonymousFunctionSymbol()
+        context.pushContainerSymbol(functionSymbol)
         lambdaExpression.getChildNodesByType(FUNCTION_LITERAL).first().forEachChildren {
             when (it.tokenType) {
-                VALUE_PARAMETER_LIST -> valueParameterList += declarationBuilder.convertValueParameters(it, functionSymbol, ValueParameterDeclaration.LAMBDA)
+                VALUE_PARAMETER_LIST -> valueParameterList += declarationBuilder.convertValueParameters(
+                    it,
+                    functionSymbol,
+                    ValueParameterDeclaration.LAMBDA,
+                )
                 BLOCK -> block = it
                 ARROW -> hasArrow = true
             }
@@ -217,9 +226,9 @@ class LightTreeRawFirExpressionBuilder(
             body = withForcedLocalContext {
                 if (block != null) {
                     val kind = runIf(destructuringStatements.isNotEmpty()) {
-                    KtFakeSourceElementKind.LambdaDestructuringBlock
-                }
-                val bodyBlock = declarationBuilder.convertBlockExpressionWithoutBuilding(block!!, kind).apply {
+                        KtFakeSourceElementKind.LambdaDestructuringBlock
+                    }
+                    val bodyBlock = declarationBuilder.convertBlockExpressionWithoutBuilding(block!!, kind).apply {
                         statements.firstOrNull()?.let {
                             if (it.isContractBlockFirCheck()) {
                                 this@buildAnonymousFunction.contractDescription = it.toLegacyRawContractDescription()
@@ -240,16 +249,16 @@ class LightTreeRawFirExpressionBuilder(
                         }
                     }.build()
 
-                if (destructuringStatements.isNotEmpty()) {
-                    // Destructured variables must be in a separate block so that they can be shadowed.
-                    buildBlock {
-                        source = bodyBlock.source?.realElement()
-                        statements.addAll(destructuringStatements)
-                        statements.add(bodyBlock)
+                    if (destructuringStatements.isNotEmpty()) {
+                        // Destructured variables must be in a separate block so that they can be shadowed.
+                        buildBlock {
+                            source = bodyBlock.source?.realElement()
+                            statements.addAll(destructuringStatements)
+                            statements.add(bodyBlock)
+                        }
+                    } else {
+                        bodyBlock
                     }
-                } else {
-                    bodyBlock
-                }
                 } else {
                     buildSingleExpressionBlock(buildErrorExpression(null, ConeSyntaxDiagnostic("Lambda has no body")))
                 }
@@ -258,6 +267,8 @@ class LightTreeRawFirExpressionBuilder(
         }.also {
             target.bind(it)
         }
+
+        context.popContainerSymbol(functionSymbol)
         return buildAnonymousFunctionExpression {
             source = expressionSource
             this.anonymousFunction = anonymousFunction
@@ -367,7 +378,7 @@ class LightTreeRawFirExpressionBuilder(
      */
     private fun convertBinaryWithTypeRHSExpression(
         binaryExpression: LighterASTNode,
-        toFirOperation: String.() -> FirOperation
+        toFirOperation: String.() -> FirOperation,
     ): FirTypeOperatorCall {
         lateinit var operationTokenName: String
         var leftArgAsFir: FirExpression? = null
@@ -872,7 +883,7 @@ class LightTreeRawFirExpressionBuilder(
 
     private fun convertWhenConditionExpression(
         whenCondition: LighterASTNode,
-        whenRefWithSubject: FirExpressionRef<FirWhenExpression>?
+        whenRefWithSubject: FirExpressionRef<FirWhenExpression>?,
     ): FirExpression {
         var firExpression: FirExpression? = null
         whenCondition.forEachChildren {
@@ -1080,7 +1091,7 @@ class LightTreeRawFirExpressionBuilder(
 
     private fun createSimpleNamedReference(
         sourceElement: KtSourceElement,
-        referenceExpression: LighterASTNode
+        referenceExpression: LighterASTNode,
     ): FirNamedReference {
         return buildSimpleNamedReference {
             source = sourceElement
@@ -1304,8 +1315,9 @@ class LightTreeRawFirExpressionBuilder(
         var blockNode: LighterASTNode? = null
         catchClause.forEachChildren {
             when (it.tokenType) {
-                VALUE_PARAMETER_LIST -> valueParameter = declarationBuilder.convertValueParameters(it, FirAnonymousFunctionSymbol()/*TODO*/, ValueParameterDeclaration.CATCH)
-                    .firstOrNull() ?: return null
+                VALUE_PARAMETER_LIST -> valueParameter =
+                    declarationBuilder.convertValueParameters(it, FirAnonymousFunctionSymbol()/*TODO*/, ValueParameterDeclaration.CATCH)
+                        .firstOrNull() ?: return null
                 BLOCK -> blockNode = it
             }
         }
@@ -1518,7 +1530,8 @@ class LightTreeRawFirExpressionBuilder(
                 VALUE_ARGUMENT -> container += convertValueArgument(node)
                 LAMBDA_EXPRESSION,
                 LABELED_EXPRESSION,
-                ANNOTATED_EXPRESSION -> container += buildLambdaArgumentExpression {
+                ANNOTATED_EXPRESSION,
+                -> container += buildLambdaArgumentExpression {
                     source = valueArguments.toFirSourceElement()
                     expression = getAsFirExpression(node)
                 }

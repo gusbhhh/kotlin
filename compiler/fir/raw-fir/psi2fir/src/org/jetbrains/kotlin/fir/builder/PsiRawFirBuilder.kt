@@ -184,7 +184,7 @@ open class PsiRawFirBuilder(
         override val KtDestructuringDeclarationEntry.source: KtSourceElement
             get() = toKtPsiSourceElement()
 
-        override fun KtDestructuringDeclarationEntry.extractAnnotationsTo(target: FirAnnotationContainerBuilder) {
+        override fun KtDestructuringDeclarationEntry.extractAnnotationsTo(target: FirPropertyBuilder) {
             (this as KtAnnotated).extractAnnotationsTo(target)
         }
 
