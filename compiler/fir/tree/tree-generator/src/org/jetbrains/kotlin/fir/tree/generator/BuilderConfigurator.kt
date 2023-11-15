@@ -412,6 +412,10 @@ object BuilderConfigurator : AbstractBuilderConfigurator<FirTreeBuilder>(FirTree
 
         noBuilder(constExpression)
 
+        builder(samConversionExpression) {
+            withCopy()
+        }
+
         // -----------------------------------------------------------------------
 
         findImplementationsWithElementInParents(annotationContainer).forEach {

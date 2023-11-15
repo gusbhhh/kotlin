@@ -614,6 +614,10 @@ object NodeConfigurator : AbstractFieldConfigurator<FirTreeBuilder>(FirTreeBuild
             +field("varargElementType", typeRef)
         }
 
+        samConversionExpression.configure {
+            +field("expression", expression)
+        }
+
         resolvedQualifier.configure {
             +field("packageFqName", fqNameType)
             +field("relativeClassFqName", fqNameType, nullable = true)
