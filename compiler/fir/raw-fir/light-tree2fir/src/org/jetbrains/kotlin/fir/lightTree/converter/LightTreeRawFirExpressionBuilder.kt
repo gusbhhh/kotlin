@@ -1156,7 +1156,7 @@ class LightTreeRawFirExpressionBuilder(
         val calculatedRangeExpression =
             rangeExpression ?: buildErrorExpression(null, ConeSyntaxDiagnostic("No range in for loop"))
         val fakeSource = forLoop.toFirSourceElement(KtFakeSourceElementKind.DesugaredForLoop)
-        val rangeSource = calculatedRangeExpression.source?.fakeElement(KtFakeSourceElementKind.DesugaredForLoop)
+        val rangeSource = calculatedRangeExpression.source?.fakeElement(KtFakeSourceElementKind.DesugaredForLoop) ?: fakeSource
         val target: FirLoopTarget
         // NB: FirForLoopChecker relies on this block existence and structure
         return buildBlock {
@@ -1166,9 +1166,9 @@ class LightTreeRawFirExpressionBuilder(
                 rangeSource,
                 SpecialNames.ITERATOR,
                 buildFunctionCall {
-                    source = rangeSource ?: fakeSource
+                    source = rangeSource
                     calleeReference = buildSimpleNamedReference {
-                        source = rangeSource ?: fakeSource
+                        source = rangeSource
                         name = OperatorNameConventions.ITERATOR
                     }
                     explicitReceiver = calculatedRangeExpression
@@ -1178,9 +1178,9 @@ class LightTreeRawFirExpressionBuilder(
             statements += FirWhileLoopBuilder().apply {
                 source = fakeSource
                 condition = buildFunctionCall {
-                    source = rangeSource ?: fakeSource
+                    source = rangeSource
                     calleeReference = buildSimpleNamedReference {
-                        source = rangeSource ?: fakeSource
+                        source = rangeSource
                         name = OperatorNameConventions.HAS_NEXT
                     }
                     explicitReceiver = generateResolvedAccessExpression(rangeSource, iteratorVal)
@@ -1198,9 +1198,9 @@ class LightTreeRawFirExpressionBuilder(
                         valueParameter.source,
                         if (multiDeclaration != null) SpecialNames.DESTRUCT else valueParameter.name,
                         buildFunctionCall {
-                            source = rangeSource ?: fakeSource
+                            source = rangeSource
                             calleeReference = buildSimpleNamedReference {
-                                source = rangeSource ?: fakeSource
+                                source = rangeSource
                                 name = OperatorNameConventions.NEXT
                             }
                             explicitReceiver = generateResolvedAccessExpression(rangeSource, iteratorVal)
