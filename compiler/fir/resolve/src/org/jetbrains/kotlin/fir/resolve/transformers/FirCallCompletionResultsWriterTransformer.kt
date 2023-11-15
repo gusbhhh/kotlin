@@ -5,6 +5,8 @@
 
 package org.jetbrains.kotlin.fir.resolve.transformers
 
+import org.jetbrains.kotlin.KtFakeSourceElementKind
+import org.jetbrains.kotlin.fakeElement
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.utils.isInline
@@ -12,6 +14,7 @@ import org.jetbrains.kotlin.fir.diagnostics.ConeDiagnostic
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
 import org.jetbrains.kotlin.fir.diagnostics.DiagnosticKind
 import org.jetbrains.kotlin.fir.expressions.*
+import org.jetbrains.kotlin.fir.expressions.builder.buildSamConversionExpression
 import org.jetbrains.kotlin.fir.expressions.impl.FirPropertyAccessExpressionImpl
 import org.jetbrains.kotlin.fir.references.FirNamedReference
 import org.jetbrains.kotlin.fir.references.builder.buildResolvedCallableReference
@@ -316,7 +319,9 @@ class FirCallCompletionResultsWriterTransformer(
             }
         }
         val expectedArgumentsTypeMapping = runIf(!calleeReference.isError) { subCandidate.createArgumentsMapping() }
-        result.argumentList.transformArguments(this, expectedArgumentsTypeMapping)
+
+        result.transformWithExpectedTypes(expectedArgumentsTypeMapping)
+
         result.replaceConeTypeOrNull(resultType)
         session.lookupTracker?.recordTypeResolveAsLookup(resultType, functionCall.source, context.file.source)
 
@@ -328,6 +333,44 @@ class FirCallCompletionResultsWriterTransformer(
             result.addNonFatalDiagnostic(ConeResolutionResultOverridesOtherToPreserveCompatibility)
         }
         return result
+    }
+
+    private fun FirCall.transformWithExpectedTypes(expectedArgumentsTypeMapping: ExpectedArgumentType?) {
+        argumentList.transformArguments(object : FirTransformer<Any?>() {
+            override fun <E : FirElement> transformElement(element: E, data: Any?): E {
+                // We want to handle only the most top-level "real" expressions
+                // We only recursively transform named, spread, lambda argument and vararg expressions.
+                if (element is FirWrappedArgumentExpression || element is FirVarargArgumentsExpression) {
+                    @Suppress("UNCHECKED_CAST")
+                    return element.transformChildren(this, null) as E
+                }
+
+                // Once we encounter the first "real" expression, we delegate to the outer transformer.
+                val transformed = element.transformSingle(this@FirCallCompletionResultsWriterTransformer, expectedArgumentsTypeMapping)
+
+                // Finally, the result can be wrapped in a SAM conversion if necessary.
+                if (transformed is FirExpression) {
+                    val key = (element as? FirAnonymousFunctionExpression)?.anonymousFunction ?: element
+                    @Suppress("UNCHECKED_CAST")
+                    return transformed.wrapInSamExpressionIfNecessary(expectedArgumentsTypeMapping?.getExpectedType(key)) as E
+                }
+
+                return transformed
+            }
+        }, null)
+    }
+
+    private fun FirExpression.wrapInSamExpressionIfNecessary(expectedArgumentType: ConeKotlinType?): FirExpression {
+        if (expectedArgumentType == null) return this
+        val resolvedType = resolvedType
+        if (resolvedType.isSubtypeOf(expectedArgumentType, session)) return this
+        if (!samResolver.isSamType(expectedArgumentType)) return this
+
+        return buildSamConversionExpression {
+            expression = this@wrapInSamExpressionIfNecessary
+            coneTypeOrNull = expectedArgumentType.withNullability(resolvedType.nullability, session.typeContext)
+            source = this@wrapInSamExpressionIfNecessary.source?.fakeElement(KtFakeSourceElementKind.SamConversion)
+        }
     }
 
     private val FirBasedSymbol<*>.isArrayConstructorWithLambda: Boolean
@@ -512,7 +555,7 @@ class FirCallCompletionResultsWriterTransformer(
 
         val isIntegerOperator = symbol.isWrappedIntegerOperator()
 
-        val arguments = argumentMapping?.map { (argument, valueParameter) ->
+        val arguments = argumentMapping?.flatMap { (argument, valueParameter) ->
             val expectedType = when {
                 isIntegerOperator -> ConeIntegerConstantOperatorTypeImpl(
                     isUnsigned = symbol.isWrappedIntegerOperatorForUnsignedType() && callInfo.name in binaryOperatorsWithSignedArgument,
@@ -522,13 +565,11 @@ class FirCallCompletionResultsWriterTransformer(
                 else -> valueParameter.returnTypeRef.substitute(this)
             }
 
-            val unwrappedArgument: FirElement = when (val unwrappedArgument = argument.unwrapArgument()) {
-                is FirAnonymousFunctionExpression -> unwrappedArgument.anonymousFunction
-                else -> unwrappedArgument
+            argument.unwrapAndFlattenArgument(flattenArrays = false).map {
+                val element: FirElement = (it as? FirAnonymousFunctionExpression)?.anonymousFunction ?: it
+                element to expectedType
             }
-            unwrappedArgument to expectedType
         }?.toMap()
-
 
         if (lambdasReturnType.isEmpty() && arguments.isNullOrEmpty()) return null
         return ExpectedArgumentType.ArgumentsMap(arguments ?: emptyMap(), lambdasReturnType)
@@ -554,7 +595,7 @@ class FirCallCompletionResultsWriterTransformer(
         }
 
         val argumentsMapping = runIf(!calleeReference.isError) { subCandidate.createArgumentsMapping() }
-        delegatedConstructorCall.argumentList.transformArguments(this, argumentsMapping)
+        delegatedConstructorCall.transformWithExpectedTypes(argumentsMapping)
 
         return delegatedConstructorCall.apply {
             replaceCalleeReference(calleeReference.toResolvedReference())
