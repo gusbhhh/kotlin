@@ -5,20 +5,19 @@
 
 package org.jetbrains.kotlin.fir.tree.generator.printer
 
+import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.fir.tree.generator.*
 import org.jetbrains.kotlin.fir.tree.generator.context.AbstractFirTreeBuilder
-import org.jetbrains.kotlin.fir.tree.generator.firDefaultVisitorType
-import org.jetbrains.kotlin.fir.tree.generator.firDefaultVisitorVoidType
-import org.jetbrains.kotlin.fir.tree.generator.firVisitorType
-import org.jetbrains.kotlin.fir.tree.generator.firVisitorVoidType
 import org.jetbrains.kotlin.fir.tree.generator.model.Element
 import org.jetbrains.kotlin.fir.tree.generator.model.Field
 import org.jetbrains.kotlin.generators.tree.*
 import org.jetbrains.kotlin.generators.tree.printer.GeneratedFile
 import org.jetbrains.kotlin.generators.tree.printer.printGeneratedType
 import org.jetbrains.kotlin.utils.SmartPrinter
+import org.jetbrains.kotlin.utils.withIndent
 import java.io.File
 
-private class VisitorPrinter(
+private open class VisitorPrinter(
     printer: SmartPrinter,
     override val visitorType: ClassRef<*>,
     visitSuperTypeByDefault: Boolean,
@@ -33,15 +32,67 @@ private class VisitorPrinter(
     override val visitorDataType: TypeRef
         get() = dataTypeVariable
 
-    override fun visitMethodReturnType(element: Element) = resultTypeVariable
+    override fun visitMethodReturnType(element: Element): TypeRef = resultTypeVariable
 
     override val allowTypeParametersInVisitorMethods: Boolean
         get() = true
 
+    context(ImportCollector)
+    override fun printMethodsForElement(element: Element) {
+        val isInterface = element.kind?.isInterface == true
+        val parentInVisitor = parentInVisitor(element)
+
+        if (isInterface && !visitSuperTypeByDefault) return
+        if (!isInterface && visitSuperTypeByDefault && parentInVisitor == AbstractFirTreeBuilder.baseFirAbstractElement) return
+
+        val (modality, override) = when {
+            element == AbstractFirTreeBuilder.baseFirAbstractElement -> Modality.ABSTRACT to false
+            visitSuperTypeByDefault && !isInterface -> null to true
+            else -> Modality.OPEN to false
+        }
+
+        printer.printVisitMethod(element, modality, override)
+    }
+
+    context(ImportCollector)
+    protected open fun SmartPrinter.printVisitMethod(element: Element, modality: Modality?, override: Boolean) {
+        printMethodDeclarationForElement(element, modality, override)
+        val parentInVisitor = parentInVisitor(element)
+        if (parentInVisitor != null) {
+            println(" =")
+            withIndent {
+                print(
+                    parentInVisitor.visitFunctionName,
+                    "(",
+                    element.visitorParameterName,
+                    element.castToFirElementIfNeeded(),
+                    ", data)"
+                )
+            }
+        }
+        println()
+    }
+
     override fun parentInVisitor(element: Element): Element? = when {
-        element.isRootElement -> null
-        visitSuperTypeByDefault -> element.parentInVisitor
-        else -> AbstractFirTreeBuilder.baseFirElement
+        element == AbstractFirTreeBuilder.baseFirAbstractElement -> null
+        visitSuperTypeByDefault -> element.parentInVisitor ?: AbstractFirTreeBuilder.baseFirAbstractElement
+        else -> AbstractFirTreeBuilder.baseFirAbstractElement
+    }
+
+    context(ImportCollector)
+    override fun SmartPrinter.printAdditionalMethods() {
+        val (modality, override) = if (visitSuperTypeByDefault) null to true else Modality.OPEN to false
+        printVisitMethod(AbstractFirTreeBuilder.firDeclarationStatusImpl, modality, override)
+    }
+
+    context (ImportCollector)
+    protected fun Element.castToFirElementIfNeeded(): String {
+        val isInterface = kind?.isInterface == true
+        return if (isInterface && parentInVisitor(element) == AbstractFirTreeBuilder.baseFirAbstractElement) {
+            " as ${baseAbstractElementType.render()}"
+        } else {
+            ""
+        }
     }
 }
 
@@ -71,7 +122,12 @@ private class VisitorVoidPrinter(
     override val overriddenVisitMethodsAreFinal: Boolean
         get() = true
 
-    override fun parentInVisitor(element: Element): Element = AbstractFirTreeBuilder.baseFirElement
+    override fun parentInVisitor(element: Element): Element = AbstractFirTreeBuilder.baseFirAbstractElement
+
+    context(ImportCollector)
+    override fun SmartPrinter.printAdditionalMethods() {
+        printMethodsForElement(AbstractFirTreeBuilder.firDeclarationStatusImpl)
+    }
 }
 
 fun printVisitorVoid(elements: List<Element>, generationPath: File) =
@@ -80,7 +136,7 @@ fun printVisitorVoid(elements: List<Element>, generationPath: File) =
 private class DefaultVisitorVoidPrinter(
     printer: SmartPrinter,
     override val visitorType: ClassRef<*>,
-) : AbstractVisitorPrinter<Element, Field>(printer, visitSuperTypeByDefault = true) {
+) : VisitorPrinter(printer, visitorType, true) {
 
     override val visitorTypeParameters: List<TypeVariable>
         get() = emptyList()
@@ -96,17 +152,19 @@ private class DefaultVisitorVoidPrinter(
     override val allowTypeParametersInVisitorMethods: Boolean
         get() = true
 
-    context(ImportCollector)
-    override fun printMethodsForElement(element: Element) {
-        printer.run {
-            printVisitMethodDeclaration(
-                element,
-                hasDataParameter = false,
-                override = true,
-            )
-            println(" = ", element.parentInVisitor!!.visitFunctionName, "(", element.visitorParameterName, ")")
-            println()
+
+    context(ImportCollector) override fun SmartPrinter.printVisitMethod(element: Element, modality: Modality?, override: Boolean) {
+        printVisitMethodDeclaration(
+            element,
+            hasDataParameter = false,
+            modality = modality,
+            override = override,
+        )
+        val parentInVisitor = parentInVisitor(element)
+        if (parentInVisitor != null) {
+            println(" = ", parentInVisitor.visitFunctionName, "(", element.visitorParameterName, element.castToFirElementIfNeeded(), ")")
         }
+        println()
     }
 }
 

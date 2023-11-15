@@ -18,15 +18,19 @@ internal const val TREE_GENERATOR_README = "compiler/fir/tree/tree-generator/Rea
 
 fun generateElements(builder: AbstractFirTreeBuilder, generationPath: File): List<GeneratedFile> {
     val generatedFiles = mutableListOf<GeneratedFile>()
-    builder.elements.mapTo(generatedFiles) { it.generateCode(generationPath) }
-    builder.elements.flatMap { it.allImplementations }.mapTo(generatedFiles) { it.generateCode(generationPath) }
-    builder.elements.flatMap { it.allImplementations }.mapNotNull { it.builder }.mapTo(generatedFiles) { it.generateCode(generationPath) }
+    val generatedElements = builder.elements
+        .filter { it != AbstractFirTreeBuilder.baseFirElement && it != AbstractFirTreeBuilder.baseFirAbstractElement }
+    generatedElements.mapTo(generatedFiles) { it.generateCode(generationPath) }
+    generatedElements.flatMap { it.allImplementations }.mapTo(generatedFiles) { it.generateCode(generationPath) }
+    generatedElements.flatMap { it.allImplementations }.mapNotNull { it.builder }.mapTo(generatedFiles) { it.generateCode(generationPath) }
     builder.intermediateBuilders.mapTo(generatedFiles) { it.generateCode(generationPath) }
 
-    generatedFiles += printVisitor(builder.elements, generationPath, false)
-    generatedFiles += printVisitorVoid(builder.elements, generationPath)
-    generatedFiles += printVisitor(builder.elements, generationPath, true)
-    generatedFiles += printDefaultVisitorVoid(builder.elements, generationPath)
-    generatedFiles += printTransformer(builder.elements, generationPath)
+    val elements = builder.elements.filter { it != AbstractFirTreeBuilder.baseFirElement } + AbstractFirTreeBuilder.baseFirAbstractElement
+    val notInterfaceElements = elements.filter { it.kind?.isInterface != true }
+    generatedFiles += printVisitor(elements, generationPath, false)
+    generatedFiles += printVisitorVoid(notInterfaceElements, generationPath)
+    generatedFiles += printVisitor(elements, generationPath, true)
+    generatedFiles += printDefaultVisitorVoid(elements, generationPath)
+    generatedFiles += printTransformer(notInterfaceElements, generationPath)
     return generatedFiles
 }

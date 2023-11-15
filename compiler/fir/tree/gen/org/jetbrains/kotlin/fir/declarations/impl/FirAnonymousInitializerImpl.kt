@@ -20,6 +20,8 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousInitializerSymbol
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
 import org.jetbrains.kotlin.fir.visitors.FirVisitor
+import org.jetbrains.kotlin.fir.visitors.accept
+import org.jetbrains.kotlin.fir.visitors.transform
 
 @OptIn(ResolveStateAccess::class)
 internal class FirAnonymousInitializerImpl(

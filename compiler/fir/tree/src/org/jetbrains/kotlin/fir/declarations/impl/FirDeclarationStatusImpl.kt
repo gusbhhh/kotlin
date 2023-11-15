@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.descriptors.EffectiveVisibility
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibility
+import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirImplementationDetail
 import org.jetbrains.kotlin.fir.FirPureAbstractElement
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationStatus
@@ -176,6 +177,15 @@ open class FirDeclarationStatusImpl(
 
     override fun <D> transformChildren(transformer: FirTransformer<D>, data: D): FirDeclarationStatusImpl {
         return this
+    }
+
+    override fun <R, D> accept(visitor: FirVisitor<R, D>, data: D): R {
+        return visitor.visitDeclarationStatusImpl(this, data)
+    }
+
+    override fun <E : FirElement, D> transform(transformer: FirTransformer<D>, data: D): E {
+        @Suppress("UNCHECKED_CAST")
+        return transformer.transformDeclarationStatusImpl(this, data) as E
     }
 
     fun resolved(

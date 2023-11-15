@@ -19,10 +19,31 @@ import kotlin.reflect.KProperty
 abstract class AbstractFirTreeBuilder {
     companion object {
         val baseFirElement: Element = Element(
-            name = "Element",
+            name = "ElementInterface",
             propertyName = this::class.qualifiedName + "." + Companion::baseFirElement.name,
             kind = Element.Kind.Other
         )
+
+        val baseFirAbstractElement: Element = Element(
+            name = "Element",
+            propertyName = this::class.qualifiedName + "." + Companion::baseFirAbstractElement.name,
+            kind = Element.Kind.Other
+        )
+
+        val firDeclarationStatus: Element = Element(
+            name = "DeclarationStatus",
+            propertyName = this::class.qualifiedName + "." + Companion::firDeclarationStatus.name,
+            kind = Element.Kind.Declaration
+        )
+
+        val firDeclarationStatusImpl: Element = Element(
+            name = "DeclarationStatusImpl",
+            propertyName = this::class.qualifiedName + "." + Companion::firDeclarationStatusImpl.name,
+            kind = Element.Kind.DeclarationImpl
+        ).also {
+            it.customParentInVisitor = firDeclarationStatus
+            it.elementParents.add(ElementRef(firDeclarationStatus))
+        }
     }
 
     val elements = mutableListOf(baseFirElement)
