@@ -6290,12 +6290,6 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
                 }
 
                 @Test
-                @TestMetadata("equalityCompare.kt")
-                public void testEqualityCompare() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/constantEvaluator/constant/equalityCompare.kt");
-                }
-
-                @Test
                 @TestMetadata("equals.kt")
                 public void testEquals() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/constantEvaluator/constant/equals.kt");
@@ -6323,6 +6317,12 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
                 @TestMetadata("floatsAndDoubles.kt")
                 public void testFloatsAndDoubles() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/constantEvaluator/constant/floatsAndDoubles.kt");
+                }
+
+                @Test
+                @TestMetadata("identityCompare.kt")
+                public void testIdentityCompare() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/constantEvaluator/constant/identityCompare.kt");
                 }
 
                 @Test
