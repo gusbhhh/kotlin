@@ -9,7 +9,14 @@ import com.intellij.psi.PsiAnnotationParameterList
 import com.intellij.psi.PsiModifierList
 import org.jetbrains.kotlin.analysis.api.annotations.KtAnnotationApplication
 import org.jetbrains.kotlin.analysis.api.annotations.KtAnnotationApplicationWithArgumentsInfo
+import org.jetbrains.kotlin.analysis.api.annotations.KtArrayAnnotationValue
+import org.jetbrains.kotlin.analysis.api.annotations.KtNamedAnnotationValue
+import org.jetbrains.kotlin.analysis.project.structure.KtModule
 import org.jetbrains.kotlin.asJava.classes.lazyPub
+import org.jetbrains.kotlin.light.classes.symbol.analyzeForLightClasses
+import org.jetbrains.kotlin.light.classes.symbol.findMissingVarargArgument
+import org.jetbrains.kotlin.light.classes.symbol.restoreSymbolOrThrowIfDisposed
+import org.jetbrains.kotlin.light.classes.symbol.withSymbol
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtCallElement
@@ -39,10 +46,17 @@ internal class SymbolLightLazyAnnotation(
     override fun getQualifiedName(): String = fqName.asString()
 
     private val _parameterList: PsiAnnotationParameterList by lazyPub {
+        val missingVarargArgument = annotationApplication.psi?.let {
+            analyzeForLightClasses(it) {
+                annotationApplicationWithArgumentsInfo.value.findMissingVarargArgument()
+            }
+        }
         if (annotationApplication.isCallWithArguments) {
-            symbolLightAnnotationParameterList { annotationApplicationWithArgumentsInfo.value.arguments }
+            symbolLightAnnotationParameterList {
+                annotationApplicationWithArgumentsInfo.value.arguments + listOfNotNull(missingVarargArgument)
+            }
         } else {
-            symbolLightAnnotationParameterList()
+            symbolLightAnnotationParameterList(listOfNotNull(missingVarargArgument))
         }
     }
 
