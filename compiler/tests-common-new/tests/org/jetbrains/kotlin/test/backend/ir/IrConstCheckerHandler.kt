@@ -34,12 +34,14 @@ class IrConstCheckerHandler(testServices: TestServices) : AbstractIrHandler(test
 private class IrConstChecker : IrTypeTransformer<Nothing?> {
     override fun visitFile(declaration: IrFile, data: Nothing?): IrFile {
         checkAnnotations(declaration)
-        return super.visitFile(declaration, data)
+        declaration.transformChildren(this, data)
+        return declaration
     }
 
     override fun visitDeclaration(declaration: IrDeclarationBase, data: Nothing?): IrStatement {
         checkAnnotations(declaration)
-        return super.visitDeclaration(declaration, data)
+        declaration.transformChildren(this, data)
+        return declaration
     }
 
     override fun <Type : IrType?> transformType(container: IrElement, type: Type, data: Nothing?): Type {
