@@ -23,6 +23,11 @@ object FirWasmErrors {
     val CALL_TO_DEFINED_EXTERNALLY_FROM_NON_EXTERNAL_DECLARATION by error0<PsiElement>()
     val WRONG_JS_INTEROP_TYPE by error2<KtElement, String, ConeKotlinType>(SourceElementPositioningStrategies.DECLARATION_SIGNATURE_OR_DEFAULT)
 
+    // JsCode
+    val JSCODE_WRONG_CONTEXT by error0<KtElement>(SourceElementPositioningStrategies.NAME_IDENTIFIER)
+    val JSCODE_UNSUPPORTED_FUNCTION_KIND by error1<KtElement, String>(SourceElementPositioningStrategies.NAME_IDENTIFIER)
+    val JSCODE_INVALID_PARAMETER_NAME by error0<KtElement>()
+
     // Wasm interop
     val NESTED_WASM_EXPORT by error0<KtElement>()
     val WASM_EXPORT_ON_EXTERNAL_DECLARATION by error0<KtElement>()
