@@ -42,7 +42,7 @@ public expect fun <T> MutableList<T>.fill(value: T): Unit
 public expect fun <T> MutableList<T>.shuffle(): Unit
 
 /**
- * Returns a new list with the elements of this list randomly shuffled.
+ * Returns a new list with the elements of this collection randomly shuffled.
  */
 @SinceKotlin("1.2")
 public expect fun <T> Iterable<T>.shuffled(): List<T>
