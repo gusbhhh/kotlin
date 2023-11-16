@@ -10,7 +10,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.platform.TargetPlatform
-import org.jetbrains.kotlin.psi.KtCodeFragment
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 import java.nio.file.Path
@@ -232,6 +231,11 @@ public interface KtDanglingFileModule : KtModule {
     public val contextModule: KtModule
 
     /**
+     * A way of resolving references to non-local declarations in the dangling file.
+     */
+    public val resolutionMode: DanglingFileResolutionMode
+
+    /**
      * True if the [file] is a code fragment.
      * Useful to recognize code fragments when their PSI was collected.
      */
@@ -241,7 +245,11 @@ public interface KtDanglingFileModule : KtModule {
         get() = "Temporary file"
 }
 
-public val KtDanglingFileModule.isCacheable: Boolean
+/**
+ * True if the dangling file module supports partial invalidation on PSI modifications.
+ * Sessions for such modules can be cached for longer time.
+ */
+public val KtDanglingFileModule.isStable: Boolean
     get() {
         val file = file ?: return false
         return file.isPhysical && file.viewProvider.isEventSystemEnabled

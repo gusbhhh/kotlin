@@ -480,13 +480,13 @@ internal abstract class LLFirAbstractSessionFactory(protected val project: Proje
             registerCommonComponents(languageVersionSettings)
             registerResolveComponents()
 
-            val firProvider = LLFirProvider(
-                this,
-                components,
-                canContainKotlinPackage = true,
-            ) { scope ->
-                val file = module.file
-                if (file != null) scope.createScopedDeclarationProviderForFile(file) else null
+            val firProvider = LLFirProvider(this, components, canContainKotlinPackage = true) { scope ->
+                val danglingFile = module.file
+                if (danglingFile != null && module.resolutionMode == DanglingFileResolutionMode.PREFER_SELF) {
+                    scope.createScopedDeclarationProviderForFile(danglingFile)
+                } else {
+                    null
+                }
             }
 
             register(FirProvider::class, firProvider)
@@ -577,7 +577,7 @@ internal abstract class LLFirAbstractSessionFactory(protected val project: Proje
             is KtSourceModule -> llFirSessionCache.getSession(dependency)
 
             is KtDanglingFileModule -> {
-                require(dependency.isCacheable) { "Non-physical dangling modules cannot be used as a dependency" }
+                require(dependency.isStable) { "Unstable dangling modules cannot be used as a dependency" }
                 llFirSessionCache.getSession(dependency)
             }
 
