@@ -7,17 +7,20 @@ package org.jetbrains.kotlin.fir.analysis.checkers
 
 import org.jetbrains.kotlin.KtFakeSourceElementKind
 import org.jetbrains.kotlin.builtins.StandardNames
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirNameConflictsTracker
+import org.jetbrains.kotlin.fir.analysis.checkers.declaration.isEffectivelyFinal
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.impl.FirResolvedDeclarationStatusImpl.Companion.DEFAULT_STATUS_FOR_STATUSLESS_DECLARATIONS
 import org.jetbrains.kotlin.fir.declarations.impl.FirResolvedDeclarationStatusImpl.Companion.DEFAULT_STATUS_FOR_SUSPEND_MAIN_FUNCTION
 import org.jetbrains.kotlin.fir.declarations.impl.modifiersRepresentation
+import org.jetbrains.kotlin.fir.declarations.utils.isFinal
 import org.jetbrains.kotlin.fir.declarations.utils.nameOrSpecialName
 import org.jetbrains.kotlin.fir.expressions.FirBlock
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
@@ -287,7 +290,7 @@ private fun <D : FirBasedSymbol<*>, S : D> FirDeclarationCollector<D>.collect(
 
         val conflicts = SmartSet.create<FirBasedSymbol<*>>()
         for (otherDeclaration in it) {
-            if (otherDeclaration != declaration && !areNonConflictingCallables(declaration, otherDeclaration, session)) {
+            if (otherDeclaration != declaration && !areNonConflictingCallables(declaration, otherDeclaration)) {
                 conflicts.add(otherDeclaration)
                 declarationConflictingSymbols.getOrPut(otherDeclaration) { SmartSet.create() }.add(declaration)
             }
@@ -458,7 +461,7 @@ private fun FirDeclarationCollector<FirBasedSymbol<*>>.collectTopLevelConflict(
         conflicting is FirMemberDeclaration &&
         !session.visibilityChecker.isVisible(conflicting, session, containingFile, emptyList(), dispatchReceiver = null)
     ) return
-    if (areNonConflictingCallables(declaration, conflictingSymbol, session)) return
+    if (areNonConflictingCallables(declaration, conflictingSymbol)) return
 
     declarationConflictingSymbols.getOrPut(declaration) { SmartSet.create() }.add(conflictingSymbol)
 }
@@ -485,10 +488,10 @@ private fun areCompatibleMainFunctions(
         && declaration1.representsMainFunctionAllowingConflictingOverloads(session)
         && declaration2.representsMainFunctionAllowingConflictingOverloads(session)
 
-private fun areNonConflictingCallables(
+@OptIn(SymbolInternals::class)
+private fun FirDeclarationCollector<*>.areNonConflictingCallables(
     declaration: FirBasedSymbol<*>,
     conflicting: FirBasedSymbol<*>,
-    session: FirSession,
 ): Boolean {
     if (isExpectAndActual(declaration, conflicting)) return true
 
@@ -496,11 +499,19 @@ private fun areNonConflictingCallables(
     val conflictingIsLowPriority = hasLowPriorityAnnotation(conflicting.annotations)
     if (declarationIsLowPriority != conflictingIsLowPriority) return true
 
-    val declarationIsHidden = declaration.isDeprecationLevelHidden(session.languageVersionSettings)
-    if (declarationIsHidden) return true
+    if (session.languageVersionSettings.supportsFeature(LanguageFeature.DisableConflictingOverloadsForDeprecatedHidden)) {
+        val declarationIsFinal = (declaration as? FirCallableSymbol<*>)?.fir?.isEffectivelyFinal(context) == true
+        if (!declarationIsFinal) return false
 
-    val conflictingIsHidden = conflicting.isDeprecationLevelHidden(session.languageVersionSettings)
-    if (conflictingIsHidden) return true
+        val conflictingIsFinal = (conflicting as? FirCallableSymbol<*>)?.fir?.isEffectivelyFinal(context) == true
+        if (!conflictingIsFinal) return false
+
+        val declarationIsHidden = declaration.isDeprecationLevelHidden(session.languageVersionSettings)
+        if (declarationIsHidden) return true
+
+        val conflictingIsHidden = conflicting.isDeprecationLevelHidden(session.languageVersionSettings)
+        if (conflictingIsHidden) return true
+    }
 
     return declaration is FirCallableSymbol<*> &&
             conflicting is FirCallableSymbol<*> &&
