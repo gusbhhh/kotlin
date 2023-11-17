@@ -355,6 +355,7 @@
 /native/commonizer/ "Kotlin Multiplatform"
 /native/commonizer-api/ "Kotlin Multiplatform"
 /native/commonizer-embeddable/ "Kotlin Multiplatform"
+/native/swift/ Sergey.Bogolepov Artem.Olkov Gleb.Lukianets
 
 /plugins/allopen/ "Kotlin Compiler Core"
 /plugins/android-extensions/ "Kotlin Compiler Core"
