@@ -805,7 +805,7 @@ public sealed class KotlinClassMetadata {
          * Because obtained metadata can be incomplete, its [KotlinClassMetadata.write] method will throw an exception.
          * This method still cannot read metadata produced by pre-1.0 compilers.
          *
-         * @throws IllegalArgumentException if the metadata version is less than 1.0 or metadata format has been changed in an unpredictable way and reading of incompatible metadata is not possible
+         * @throws IllegalArgumentException if the metadata version is less than that of Kotlin 1.0 or metadata format has been changed in an unpredictable way and reading of incompatible metadata is not possible
          *
          * @see COMPATIBLE_METADATA_VERSION
          */
