@@ -38,4 +38,3 @@ CharBufferXYCharAt:
   [IntersectionOverride]: public abstract operator fun get(index: R|kotlin/Int|): R|kotlin/Char| from Java enhancement scope for /CharBufferXYCharAt [id: 0]
     [Enhancement]: public abstract operator fun get(index: R|kotlin/Int|): R|kotlin/Char| from Java enhancement scope for /X [id: 1]
     [Enhancement]: protected/*protected and package*/ abstract operator fun get(index: R|kotlin/Int|): R|kotlin/Char| from Java enhancement scope for /Y [id: 2]
-

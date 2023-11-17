@@ -614,27 +614,19 @@ class JavaClassUseSiteMemberScope(
             it.baseScope to listOf(renamedFunction)
         }
 
-        val resultsOfIntersectionOfRenamed = if (renamedFunctionsFromSupertypes == null && overriddenByNaturalName.isEmpty()) {
-            listOf(resultOfIntersectionWithNaturalName)
-        } else {
-            val membersByScope = buildList {
-                overriddenByJvmName.mapTo(this) { it.baseScope to listOf(it.member) }
-                addAll(renamedFunctionsFromSupertypes.orEmpty())
-            }
-            supertypeScopeContext.convertGroupedCallablesToIntersectionResults(membersByScope)
-        }
-
-        fun setOverrides(override: FirNamedFunctionSymbol, overridden: List<ResultOfIntersection<FirNamedFunctionSymbol>>) {
-            directOverriddenFunctions[override] = overridden
-            for (resultOfIntersection in overridden) {
-                for (overriddenMember in resultOfIntersection.overriddenMembers) {
-                    overrideByBase[overriddenMember.member] = override
+        val resultsOfIntersectionOfRenamed = when {
+            renamedFunctionsFromSupertypes == null && overriddenByNaturalName.isEmpty() -> listOf(resultOfIntersectionWithNaturalName)
+            else -> {
+                val membersByScope = buildList {
+                    overriddenByJvmName.mapTo(this) { it.baseScope to listOf(it.member) }
+                    addAll(renamedFunctionsFromSupertypes.orEmpty())
                 }
+                supertypeScopeContext.convertGroupedCallablesToIntersectionResults(membersByScope)
             }
         }
 
         val explicitlyDeclaredOrInheritedFunctionWithBuiltinJvmName =
-            explicitlyDeclaredFunctionWithBuiltinJvmName ?: overriddenByJvmName.firstNotNullOfOrNull { it.member }
+            explicitlyDeclaredFunctionWithBuiltinJvmName ?: overriddenByJvmName.firstOrNull()?.member
 
         if ((explicitlyDeclaredFunctionWithNaturalName != null || overriddenByNaturalName.isNotEmpty()) &&
             explicitlyDeclaredOrInheritedFunctionWithBuiltinJvmName != null
@@ -676,6 +668,15 @@ class JavaClassUseSiteMemberScope(
                     destination += resultOfIntersection.chosenSymbol
                 }
                 resultsOfIntersectionToSaveInCache += resultsOfIntersectionOfRenamed
+            }
+        }
+    }
+
+    private fun setOverrides(override: FirNamedFunctionSymbol, overridden: List<ResultOfIntersection<FirNamedFunctionSymbol>>) {
+        directOverriddenFunctions[override] = overridden
+        for (resultOfIntersection in overridden) {
+            for (overriddenMember in resultOfIntersection.overriddenMembers) {
+                overrideByBase[overriddenMember.member] = override
             }
         }
     }
