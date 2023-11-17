@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.analysis.providers.KotlinAnchorModuleProvider
 import org.jetbrains.kotlin.analysis.providers.KotlinDeclarationProvider
 import org.jetbrains.kotlin.analysis.providers.createAnnotationResolver
 import org.jetbrains.kotlin.analysis.providers.createDeclarationProvider
+import org.jetbrains.kotlin.analysis.providers.impl.declarationProviders.CompositeKotlinDeclarationProvider
 import org.jetbrains.kotlin.analysis.providers.impl.declarationProviders.FileBasedKotlinDeclarationProvider
 import org.jetbrains.kotlin.analysis.providers.impl.util.mergeInto
 import org.jetbrains.kotlin.analysis.utils.errors.withKtModuleEntry
@@ -482,15 +483,27 @@ internal abstract class LLFirAbstractSessionFactory(protected val project: Proje
 
             val resolutionMode = module.resolutionMode
 
-            val firProvider = LLFirProvider(
-                this,
-                components,
-                canContainKotlinPackage = true,
-                canExposeSelfDeclarations = resolutionMode == DanglingFileResolutionMode.PREFER_SELF
-            ) { scope ->
-                val file = module.file
-                if (file != null) scope.createScopedDeclarationProviderForFile(file) else null
+            fun declarationProviderFactory(scope: GlobalSearchScope): KotlinDeclarationProvider? {
+                val danglingFile = module.file ?: return null
+                val originalFile = danglingFile.originalFile.takeIf { it !== danglingFile } as? KtFile
+                val originalProvider = originalFile?.let(::FileBasedKotlinDeclarationProvider)
+
+                if (resolutionMode == DanglingFileResolutionMode.IGNORE_SELF) {
+                    return originalProvider
+                } else {
+                    val danglingProvider = FileBasedKotlinDeclarationProvider(danglingFile)
+
+                    val providers = when (resolutionMode) {
+                        DanglingFileResolutionMode.PREFER_SELF -> listOfNotNull(danglingProvider, originalProvider)
+                        DanglingFileResolutionMode.PREFER_ORIGINAL -> listOfNotNull(originalProvider, danglingProvider)
+                        else -> throw IllegalStateException("Unexpected resolution mode: $resolutionMode")
+                    }
+
+                    return return CompositeKotlinDeclarationProvider.create(providers)
+                }
             }
+
+            val firProvider = LLFirProvider(this, components, canContainKotlinPackage = true, ::declarationProviderFactory)
 
             register(FirProvider::class, firProvider)
             register(FirLazyDeclarationResolver::class, LLFirLazyDeclarationResolver())

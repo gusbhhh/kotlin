@@ -5,12 +5,15 @@
 
 package org.jetbrains.kotlin.analysis.low.level.api.fir.api
 
+import org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.llFirModuleData
 import org.jetbrains.kotlin.analysis.low.level.api.fir.providers.nullableJavaSymbolProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirLibraryOrLibrarySourceResolvableModuleSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.FirElementFinder
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.containingClassId
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.getContainingFile
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.isScriptDependentDeclaration
+import org.jetbrains.kotlin.analysis.project.structure.DanglingFileResolutionMode.*
+import org.jetbrains.kotlin.analysis.project.structure.KtDanglingFileModule
 import org.jetbrains.kotlin.analysis.utils.errors.requireIsInstance
 import org.jetbrains.kotlin.analysis.utils.errors.unexpectedElementError
 import org.jetbrains.kotlin.builtins.StandardNames
@@ -28,6 +31,7 @@ import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
 import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.exceptions.checkWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 
@@ -140,12 +144,14 @@ private fun collectDesignationPathWithContainingClass(target: FirDeclaration, co
         return null
     }
 
-    val firFile = target.getContainingFile()
-    if (firFile != null && firFile.packageFqName == containingClassId.packageFqName) {
-        // We should do fallback to the heavy implementation if something goes wrong.
-        // For example, we can't be able to find an on-air declaration by this way
-        collectDesignationPathWithContainingClassByFirFile(firFile, containingClassId, target)?.let {
-            return it
+    // We should do fallback to the heavy implementation if something goes wrong.
+    // For example, we can't be able to find an on-air declaration by this way
+    for (firFile in computeContainingFilesForDesignationSearch(target)) {
+        if (firFile.packageFqName == containingClassId.packageFqName) {
+            val path = collectDesignationPathWithContainingClassByFirFile(firFile, containingClassId, target)
+            if (path != null) {
+                return path
+            }
         }
     }
 
@@ -188,6 +194,33 @@ private fun collectDesignationPathWithContainingClass(target: FirDeclaration, co
         .dropWhile { it.shortClassName.isSpecial }
         .map { resolveChunk(it) }
         .asReversed()
+}
+
+private fun computeContainingFilesForDesignationSearch(target: FirDeclaration): List<FirFile> {
+    val firFile = target.getContainingFile() ?: return emptyList()
+
+    val module = firFile.llFirModuleData.ktModule
+    if (module is KtDanglingFileModule) {
+        val danglingFile = module.file
+        val originalFile = danglingFile?.originalFile?.takeIf { it !== danglingFile } as? KtFile
+
+        if (originalFile != null) {
+            val originalResolveSession = module.contextModule.getFirResolveSession(module.project)
+            val originalFirFile = originalResolveSession.getOrBuildFirFile(originalFile)
+
+            when (module.resolutionMode) {
+                PREFER_SELF -> listOf(firFile, originalFirFile)
+                PREFER_ORIGINAL -> listOf(originalFirFile, firFile)
+                IGNORE_SELF -> listOf(originalFirFile)
+            }
+        }
+
+        if (module.resolutionMode == IGNORE_SELF) {
+            return emptyList()
+        }
+    }
+
+    return listOf(firFile)
 }
 
 /*
