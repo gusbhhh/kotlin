@@ -10,9 +10,9 @@ import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmMetadataVersion as C
 /**
  * Version of the metadata inside JVM classfile.
  *
- * Starting from Kotlin 1.4, metadata version is equal to a language version.
- * It consists of a major and minor versions. Patch version usually does not affect metadata format, but it is present for completeness because
- * compiler writes its full version to the metadata annotation; therefore, patch version is accounted for in comparisons and equality.
+ * Starting from Kotlin 1.4, metadata version is equal to the language version.
+ * It consists of major and minor versions. Patch version usually does not affect metadata format, but it is present for completeness because
+ * compiler writes its full version to the `@Metadata` annotation; therefore, patch version is accounted for in comparisons and equality.
  * All components (major, minor, and patch) should be non-negative.
  *
  * Note that metadata version is 1.1 for Kotlin compilers from 1.0 to 1.4, and is 1.0 or less for pre-1.0 compilers.
