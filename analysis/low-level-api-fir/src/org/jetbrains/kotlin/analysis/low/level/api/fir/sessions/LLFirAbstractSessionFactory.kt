@@ -480,13 +480,16 @@ internal abstract class LLFirAbstractSessionFactory(protected val project: Proje
             registerCommonComponents(languageVersionSettings)
             registerResolveComponents()
 
-            val firProvider = LLFirProvider(this, components, canContainKotlinPackage = true) { scope ->
-                val danglingFile = module.file
-                if (danglingFile != null && module.resolutionMode == DanglingFileResolutionMode.PREFER_SELF) {
-                    scope.createScopedDeclarationProviderForFile(danglingFile)
-                } else {
-                    null
-                }
+            val resolutionMode = module.resolutionMode
+
+            val firProvider = LLFirProvider(
+                this,
+                components,
+                canContainKotlinPackage = true,
+                canExposeSelfDeclarations = resolutionMode == DanglingFileResolutionMode.PREFER_SELF
+            ) { scope ->
+                val file = module.file
+                if (file != null) scope.createScopedDeclarationProviderForFile(file) else null
             }
 
             register(FirProvider::class, firProvider)
