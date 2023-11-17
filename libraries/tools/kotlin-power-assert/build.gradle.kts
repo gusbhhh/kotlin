@@ -23,7 +23,7 @@ gradlePlugin {
             id = "org.jetbrains.kotlin.plugin.power.assert"
             displayName = "Kotlin Power-Assert compiler plugin"
             description = displayName
-            implementationClass = "org.jetbrains.kotlin.powerAssert.gradle.PowerAssertGradleSubplugin"
+            implementationClass = "org.jetbrains.kotlinx.powerassert.gradle.PowerAssertGradleSubplugin"
         }
     }
 }
