@@ -176,7 +176,7 @@ Kotlin compiler and its features evolve over time, and so does its metadata form
 As you might guess, evolving metadata format usually involves adding new fields for new Kotlin language features. Therefore, 
 some problems may occur when you're reading new metadata with an older version of Kotlin compiler or kotlinx-metadata-jvm library.
 
-By default, the Kotlin compiler (and similar, kotlinx-metadata-jvm library) have forward compatibility for versions not higher than current + 1.
+By default, the Kotlin compiler (and similar, kotlinx-metadata-jvm library) has forward compatibility for versions not higher than current + 1.
 It means that Kotlin compiler 2.1 can read metadata from Kotlin compiler 2.2, but not 2.3. The same is true for `KotlinClassMetadata.readStrict()`
 method: it will throw an exception if you try to read metadata with version higher than `COMPATIBLE_METADATA_VERSION` + 1.
 Such restriction comes from the fact that higher metadata versions (e.g. 2.3) might have some unknown fields that we skip during reading; therefore, if we write 
