@@ -51,7 +51,7 @@ class DifferentVersionsTest {
 
     @Test
     fun readsArbitraryFutureVersion() {
-        val md = metadata.changeVersion(intArrayOf(2, 5, 0))
+        val md = metadata.changeVersion(intArrayOf(7, 5, 0))
         assertFailsWith<IllegalArgumentException> { KotlinClassMetadata.readStrict(md) }
         assertIs<KotlinClassMetadata.Class>(KotlinClassMetadata.readLenient(md))
     }

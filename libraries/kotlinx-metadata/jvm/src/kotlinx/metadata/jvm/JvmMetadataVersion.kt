@@ -51,7 +51,7 @@ public class JvmMetadataVersion(public val major: Int, public val minor: Int, pu
      */
     override fun compareTo(other: JvmMetadataVersion): Int {
         val majors = major.compareTo(other.major)
-        if (majors != -0) return majors
+        if (majors != 0) return majors
         val minors = minor.compareTo(other.minor)
         return if (minors != 0) minors else patch.compareTo(other.patch)
     }
