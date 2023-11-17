@@ -11,23 +11,22 @@ import com.intellij.psi.search.ProjectScope
 import org.jetbrains.kotlin.analysis.api.components.KtSymbolContainingDeclarationProvider
 import org.jetbrains.kotlin.analysis.api.descriptors.KtFe10AnalysisSession
 import org.jetbrains.kotlin.analysis.api.descriptors.components.base.Fe10KtAnalysisSessionComponent
-import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.KtFe10DescDefaultBackingFieldSymbol
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.KtFe10DynamicFunctionDescValueParameterSymbol
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base.getDescriptor
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base.toKtSymbol
 import org.jetbrains.kotlin.analysis.api.getModule
 import org.jetbrains.kotlin.analysis.api.lifetime.KtLifetimeToken
-import org.jetbrains.kotlin.analysis.api.symbols.KtBackingFieldSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtDeclarationSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolKind
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithKind
 import org.jetbrains.kotlin.analysis.project.structure.*
 import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
+import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinarySourceElement
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 import org.jetbrains.kotlin.resolve.descriptorUtil.platform
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DescriptorWithContainerSource
 import java.nio.file.Path
@@ -47,6 +46,27 @@ internal class KtFe10SymbolContainingDeclarationProvider(
         return when (symbol) {
             is KtBackingFieldSymbol -> symbol.owningProperty
             else -> symbol.getDescriptor()?.containingDeclaration?.toKtSymbol(analysisContext) as? KtDeclarationSymbol
+        }
+    }
+
+    override fun getContainingFile(symbol: KtSymbol): KtFileSymbol? {
+        val descriptor = symbol.getDescriptor()
+        val ktFile = descriptor?.let(DescriptorToSourceUtils::getContainingFile) ?: return null
+        with(analysisSession) {
+            return ktFile.getFileSymbol()
+        }
+    }
+
+    override fun getContainingJvmClassName(symbol: KtCallableSymbol): JvmClassName? {
+        return when (val descriptor = symbol.getDescriptor()) {
+            is DescriptorWithContainerSource -> {
+                when (val containerSource = descriptor.containerSource) {
+                    is JvmPackagePartSource -> containerSource.className
+                    is KotlinJvmBinarySourceElement -> JvmClassName.byClassId(containerSource.binaryClass.classId)
+                    else -> null
+                }
+            }
+            else -> symbol.callableIdIfNonLocal?.classId?.let { JvmClassName.byClassId(it) }
         }
     }
 

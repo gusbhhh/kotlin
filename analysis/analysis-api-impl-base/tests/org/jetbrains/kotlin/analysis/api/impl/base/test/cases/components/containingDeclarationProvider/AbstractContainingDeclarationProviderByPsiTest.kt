@@ -6,12 +6,11 @@
 package org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.containingDeclarationProvider
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtScriptSymbol
 import org.jetbrains.kotlin.analysis.test.framework.base.AbstractAnalysisApiSingleFileTest
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtScriptInitializer
-import org.jetbrains.kotlin.psi.KtVisitorVoid
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.test.model.TestModule
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
@@ -19,7 +18,9 @@ import org.jetbrains.kotlin.test.services.assertions
 abstract class AbstractContainingDeclarationProviderByPsiTest : AbstractAnalysisApiSingleFileTest() {
     override fun doTestByFileStructure(ktFile: KtFile, module: TestModule, testServices: TestServices) {
         val currentPath = mutableListOf<KtDeclaration>()
+        val ktClasses = mutableListOf<KtClassOrObject>()
         analyseForTest(ktFile.declarations.first()) {
+            val expectedFileSymbol = ktFile.getFileSymbol()
             ktFile.accept(object : KtVisitorVoid() {
                 override fun visitElement(element: PsiElement) {
                     element.acceptChildren(this)
@@ -39,9 +40,32 @@ abstract class AbstractContainingDeclarationProviderByPsiTest : AbstractAnalysis
                         }
                     }
 
+                    val actualFileSymbol = currentDeclarationSymbol.getContainingFile()
+                    testServices.assertions.assertEquals(expectedFileSymbol, actualFileSymbol) {
+                        "Invalid file for $currentDeclarationSymbol, expected $expectedFileSymbol but $actualFileSymbol found"
+                    }
+
+                    val parentKtClass = ktClasses.lastOrNull()
+                    if (parentKtClass != null &&
+                        currentDeclarationSymbol is KtCallableSymbol &&
+                        currentDeclarationSymbol.callableIdIfNonLocal != null
+                    ) {
+                        val expectedParentClassName = parentKtClass.getClassId()?.let { JvmClassName.byClassId(it) }
+                        val actualParentClassName = currentDeclarationSymbol.getContainingJvmClassName()
+                        testServices.assertions.assertEquals(expectedParentClassName, actualParentClassName) {
+                            "Invalid JvmClassName for $currentDeclarationSymbol, expected $expectedParentClassName but $actualParentClassName found"
+                        }
+                    }
+
                     currentPath.add(dcl)
+                    if (dcl is KtClassOrObject) {
+                        ktClasses.add(dcl)
+                    }
                     super.visitDeclaration(dcl)
                     currentPath.removeLast()
+                    if (dcl is KtClassOrObject) {
+                        ktClasses.removeLast()
+                    }
                 }
             })
         }

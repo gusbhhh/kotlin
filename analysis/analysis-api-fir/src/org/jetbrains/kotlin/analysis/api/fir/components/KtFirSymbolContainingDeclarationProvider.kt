@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolKind
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithKind
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.llFirSession
+import org.jetbrains.kotlin.analysis.low.level.api.fir.stubBased.deserialization.DeserializedContainerSourceWithJvmClassName
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.getContainingFile
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.originalDeclaration
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
@@ -27,10 +28,14 @@ import org.jetbrains.kotlin.fir.analysis.checkers.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirScript
 import org.jetbrains.kotlin.fir.diagnostics.ConeDestructuringDeclarationsOnTopLevel
+import org.jetbrains.kotlin.fir.propertyIfAccessor
 import org.jetbrains.kotlin.fir.resolve.providers.firProvider
 import org.jetbrains.kotlin.fir.symbols.impl.FirErrorPropertySymbol
+import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
+import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinarySourceElement
 import org.jetbrains.kotlin.psi
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 
 internal class KtFirSymbolContainingDeclarationProvider(
@@ -98,10 +103,30 @@ internal class KtFirSymbolContainingDeclarationProvider(
         }
     }
 
+    override fun getContainingFile(symbol: KtSymbol): KtFileSymbol? {
+        val firFileSymbol = symbol.firSymbol.fir.getContainingFile()?.symbol ?: return null
+        return firSymbolBuilder.buildSymbol(firFileSymbol) as? KtFileSymbol
+    }
+
+    override fun getContainingJvmClassName(symbol: KtCallableSymbol): JvmClassName? {
+        val fir = symbol.firSymbol.fir
+        return when (val containerSource = fir.containerSource) {
+            is JvmPackagePartSource -> containerSource.className
+            is KotlinJvmBinarySourceElement -> JvmClassName.byClassId(containerSource.binaryClass.classId)
+            is DeserializedContainerSourceWithJvmClassName -> containerSource.className
+            else -> {
+                if (symbol is KtPropertyAccessorSymbol) {
+                    fir.propertyIfAccessor.symbol.callableId.classId?.let { JvmClassName.byClassId(it) }
+                } else {
+                    symbol.callableIdIfNonLocal?.classId?.let { JvmClassName.byClassId(it) }
+                }
+            }
+        }
+    }
+
     override fun getContainingModule(symbol: KtSymbol): KtModule {
         return symbol.getContainingKtModule(analysisSession.firResolveSession)
     }
-
 
     private fun getContainingPsi(symbol: KtSymbol): KtDeclaration {
         val source = symbol.firSymbol.source
