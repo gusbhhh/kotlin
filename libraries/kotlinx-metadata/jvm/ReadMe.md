@@ -182,8 +182,8 @@ method: it will throw an exception if you try to read metadata with version high
 Such restriction comes from the fact that higher metadata versions (e.g. 2.3) might have some unknown fields that we skip during reading; therefore, if we write 
 transformed metadata back, missing some fields may result in corrupted metadata that is no longer valid for version 2.3.
 
-However, there are a lot of use-cases for metadata introspection alone, without further transformations — for example, binary-compatibility-validator which is interested only in visibility and modality of declarations.
-For such use-cases it seems over restrictive to prohibit reading newer metadata versions (and therefore, requiring authors to do frequent updates of kotlinx-metadata-jvm dependency),
+However, there are a lot of use cases for metadata introspection alone, without further transformations — for example, [binary-compatibility-validator](https://github.com/Kotlin/binary-compatibility-validator) which is interested only in visibility and modality of declarations.
+For such use cases it seems overly restrictive to prohibit reading newer metadata versions (and therefore, requiring authors to do frequent updates of kotlinx-metadata-jvm dependency),
 so there is a relaxed version of the reading method: `KotlinClassMetadata.readLenient()`. It is a best-effort reading method that will potentially skip all unknown fields,
 but still provide some access to metadata. Keep in mind that this method has limitations:
 
