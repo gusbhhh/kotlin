@@ -166,8 +166,9 @@ It's suitable when your tooling can't tolerate reading potentially incomplete or
 It's also the only method that allows metadata transformation and `KotlinClassMetadata.write` subsequent calls.
 
 `readLenient()`: This method allows you to read the metadata leniently. 
-If the metadata version is higher than what kotlinx-metadata-jvm can interpret, it may ignore parts of the metadata it doesn't understand but it won't throw an exception.
+If the metadata version is higher than what kotlinx-metadata-jvm can interpret, it may ignore parts of the metadata it doesn't understand.
 It’s more suitable when your tooling needs to read metadata of possibly newer Kotlin versions and can handle incomplete data, because it is interested only in part of it (e.g. visibility of declarations)
+Keep in mind that this method will still throw an exception if metadata is changed in an unpredictable way.
 **Metadata read in lenient mode can not be written back.**
 
 ### Detailed explanation
@@ -184,11 +185,11 @@ transformed metadata back, missing some fields may result in corrupted metadata 
 
 However, there are a lot of use cases for metadata introspection alone, without further transformations — for example, [binary-compatibility-validator](https://github.com/Kotlin/binary-compatibility-validator) which is interested only in visibility and modality of declarations.
 For such use cases it seems overly restrictive to prohibit reading newer metadata versions (and therefore, requiring authors to do frequent updates of kotlinx-metadata-jvm dependency),
-so there is a relaxed version of the reading method: `KotlinClassMetadata.readLenient()`. It is a best-effort reading method that will potentially skip all unknown fields,
+so there is a relaxed version of the reading method: `KotlinClassMetadata.readLenient()`. It is a best-effort reading method that will potentially skip unknown data,
 but still provide some access to metadata. Keep in mind that this method has limitations:
 
 1. Metadata returned by this method can not be written back, because we are not sure if it is still valid format for newer versions. It is intended for introspection alone.
-2. While some unknown fields are skipped, we cannot guarantee that metadata is not changed in the other unpredictable ways in the future. `readLenient()` tries its best, but still may throw a decoding exception if metadata cannot be read at all. 
+2. We cannot guarantee that metadata is not changed in the other unpredictable ways in the future. `readLenient()` tries its best, but still may throw a decoding exception if metadata cannot be read at all. 
 
 ## Module metadata
 
