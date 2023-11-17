@@ -12,16 +12,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MultiParameterFunctionTest {
-  @Test
-  fun `debug multi-parameter function transformation`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug multi-parameter function transformation`() {
+        val actual = executeMainDebug(
+            """
       val operation = "sum"
       dbg(operation, 1 + 2 + 3)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       sum=6
       dbg(operation, 1 + 2 + 3)
           |            |   |
@@ -29,14 +29,14 @@ class MultiParameterFunctionTest {
           |            3
           sum
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `debug multi-parameter function transformation with complex booleans`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug multi-parameter function transformation with complex booleans`() {
+        val actual = executeMainDebug(
+            """
       val greeting: String? = null
       val name: String? = null
       dbg(
@@ -44,9 +44,9 @@ class MultiParameterFunctionTest {
         value = name == null || name.length == 5
       )
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       false=true
       dbg(
         key = greeting != null && greeting.length == 5,
@@ -59,20 +59,20 @@ class MultiParameterFunctionTest {
                 null
       )
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `debug multi-parameter function transformation with message`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug multi-parameter function transformation with message`() {
+        val actual = executeMainDebug(
+            """
       val operation = "sum"
       dbg(operation, 1 + 2 + 3, "Message:")
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       sum=6
       Message:
       dbg(operation, 1 + 2 + 3, "Message:")
@@ -81,14 +81,14 @@ class MultiParameterFunctionTest {
           |            3
           sum
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `debug multi-parameter function transformation with message and complex booleans`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug multi-parameter function transformation with message and complex booleans`() {
+        val actual = executeMainDebug(
+            """
       val greeting: String? = null
       val name: String? = null
       dbg(
@@ -97,9 +97,9 @@ class MultiParameterFunctionTest {
         msg = "Message:"
       )
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       false=true
       Message:
       dbg(
@@ -114,15 +114,15 @@ class MultiParameterFunctionTest {
         msg = "Message:"
       )
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 }
 
 private fun executeMainDebug(mainBody: String): String {
-  val file = SourceFile.kotlin(
-    name = "main.kt",
-    contents = """
+    val file = SourceFile.kotlin(
+        name = "main.kt",
+        contents = """
 fun <T> dbg(key: Any, value: T): T = value
 
 fun <T> dbg(key: Any, value: T, msg: String): T {
@@ -134,13 +134,13 @@ fun main() {
   $mainBody
 }
 """,
-    trimIndent = false,
-  )
+        trimIndent = false,
+    )
 
-  val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(setOf(FqName("dbg"))))
-  assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+    val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(setOf(FqName("dbg"))))
+    assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
 
-  val kClazz = result.classLoader.loadClass("MainKt")
-  val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-  return getMainResult(main)
+    val kClazz = result.classLoader.loadClass("MainKt")
+    val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
+    return getMainResult(main)
 }

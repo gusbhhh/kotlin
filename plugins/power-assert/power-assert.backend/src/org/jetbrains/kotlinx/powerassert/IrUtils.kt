@@ -21,29 +21,29 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 fun IrBuilderWithScope.irString(builderAction: StringBuilder.() -> Unit) =
-  irString(buildString { builderAction() })
+    irString(buildString { builderAction() })
 
 fun IrBuilderWithScope.irLambda(
-  returnType: IrType,
-  lambdaType: IrType,
-  startOffset: Int = this.startOffset,
-  endOffset: Int = this.endOffset,
-  block: IrBlockBodyBuilder.() -> Unit,
+    returnType: IrType,
+    lambdaType: IrType,
+    startOffset: Int = this.startOffset,
+    endOffset: Int = this.endOffset,
+    block: IrBlockBodyBuilder.() -> Unit,
 ): IrFunctionExpression {
-  val scope = this
-  val lambda = context.irFactory.buildFun {
-    this.startOffset = startOffset
-    this.endOffset = endOffset
-    name = Name.special("<anonymous>")
-    this.returnType = returnType
-    visibility = DescriptorVisibilities.LOCAL
-    origin = IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
-  }.apply {
-    val bodyBuilder = DeclarationIrBuilder(context, symbol, startOffset, endOffset)
-    body = bodyBuilder.irBlockBody {
-      block()
+    val scope = this
+    val lambda = context.irFactory.buildFun {
+        this.startOffset = startOffset
+        this.endOffset = endOffset
+        name = Name.special("<anonymous>")
+        this.returnType = returnType
+        visibility = DescriptorVisibilities.LOCAL
+        origin = IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
+    }.apply {
+        val bodyBuilder = DeclarationIrBuilder(context, symbol, startOffset, endOffset)
+        body = bodyBuilder.irBlockBody {
+            block()
+        }
+        parent = scope.parent
     }
-    parent = scope.parent
-  }
-  return IrFunctionExpressionImpl(startOffset, endOffset, lambdaType, lambda, IrStatementOrigin.LAMBDA)
+    return IrFunctionExpressionImpl(startOffset, endOffset, lambdaType, lambda, IrStatementOrigin.LAMBDA)
 }

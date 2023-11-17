@@ -8,15 +8,15 @@ package org.jetbrains.kotlinx.powerassert
 import kotlin.test.Test
 
 class VarargTest {
-  @Test
-  fun `implicit array of vararg parameters is excluded from diagram`() {
-    assertMessage(
-      """
+    @Test
+    fun `implicit array of vararg parameters is excluded from diagram`() {
+        assertMessage(
+            """
       fun main() {
         var i = 0
         assert(listOf("a", "b", "c") == listOf(i++, i++, i++))
       }""",
-      """
+            """
       Assertion failed
       assert(listOf("a", "b", "c") == listOf(i++, i++, i++))
              |                     |  |      |    |    |
@@ -27,6 +27,6 @@ class VarargTest {
              |                     false
              [a, b, c]
       """.trimIndent(),
-    )
-  }
+        )
+    }
 }

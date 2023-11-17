@@ -13,13 +13,13 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.name.FqName
 
 class PowerAssertIrGenerationExtension(
-  private val messageCollector: MessageCollector,
-  private val functions: Set<FqName>,
+    private val messageCollector: MessageCollector,
+    private val functions: Set<FqName>,
 ) : IrGenerationExtension {
-  override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-    for (file in moduleFragment.files) {
-      PowerAssertCallTransformer(SourceFile(file), pluginContext, messageCollector, functions)
-        .visitFile(file)
+    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+        for (file in moduleFragment.files) {
+            PowerAssertCallTransformer(SourceFile(file), pluginContext, messageCollector, functions)
+                .visitFile(file)
+        }
     }
-  }
 }

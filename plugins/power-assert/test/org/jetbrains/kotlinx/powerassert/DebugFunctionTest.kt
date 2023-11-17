@@ -15,48 +15,48 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class DebugFunctionTest {
-  @Test
-  fun `debug function transformation`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug function transformation`() {
+        val actual = executeMainDebug(
+            """
       dbg(1 + 2 + 3)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       dbg(1 + 2 + 3)
             |   |
             |   6
             3
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `debug function transformation with message`() {
-    val actual = executeMainDebug(
-      """
+    @Test
+    fun `debug function transformation with message`() {
+        val actual = executeMainDebug(
+            """
       dbg(1 + 2 + 3, "Message:")
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Message:
       dbg(1 + 2 + 3, "Message:")
             |   |
             |   6
             3
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 }
 
 private fun executeMainDebug(mainBody: String): String {
-  val file = SourceFile.kotlin(
-    name = "main.kt",
-    contents = """
+    val file = SourceFile.kotlin(
+        name = "main.kt",
+        contents = """
 fun <T> dbg(value: T): T = value
 
 fun <T> dbg(value: T, msg: String): T {
@@ -68,27 +68,27 @@ fun main() {
   $mainBody
 }
 """,
-    trimIndent = false,
-  )
+        trimIndent = false,
+    )
 
-  val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(setOf(FqName("dbg"))))
-  assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+    val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(setOf(FqName("dbg"))))
+    assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
 
-  val kClazz = result.classLoader.loadClass("MainKt")
-  val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-  return getMainResult(main)
+    val kClazz = result.classLoader.loadClass("MainKt")
+    val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
+    return getMainResult(main)
 }
 
 fun getMainResult(main: Method): String {
-  try {
-    main.invoke(null)
-    fail("main did not throw expected exception")
-  } catch (t: InvocationTargetException) {
-    with(t.cause) {
-      if (this is RuntimeException && message != null && message!!.startsWith("result:")) {
-        return message!!.substringAfter("result:")
-      }
+    try {
+        main.invoke(null)
+        fail("main did not throw expected exception")
+    } catch (t: InvocationTargetException) {
+        with(t.cause) {
+            if (this is RuntimeException && message != null && message!!.startsWith("result:")) {
+                return message!!.substringAfter("result:")
+            }
+        }
+        throw t.cause!!
     }
-    throw t.cause!!
-  }
 }

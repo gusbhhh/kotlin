@@ -9,44 +9,44 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CastExpressionTest {
-  @Test
-  fun `instance check is correctly aligned`() {
-    val actual = executeMainAssertion("""assert(null is String)""")
-    assertEquals(
-      """
+    @Test
+    fun `instance check is correctly aligned`() {
+        val actual = executeMainAssertion("""assert(null is String)""")
+        assertEquals(
+            """
       Assertion failed
       assert(null is String)
                   |
                   false
       """.trimIndent(),
-      actual,
-    )
-  }
+            actual,
+        )
+    }
 
-  @Test
-  fun `negative instance check is correctly aligned`() {
-    val actual = executeMainAssertion("""assert("Hello, world!" !is String)""")
-    assertEquals(
-      """
+    @Test
+    fun `negative instance check is correctly aligned`() {
+        val actual = executeMainAssertion("""assert("Hello, world!" !is String)""")
+        assertEquals(
+            """
       Assertion failed
       assert("Hello, world!" !is String)
                              |
                              false
       """.trimIndent(),
-      actual,
-    )
-  }
+            actual,
+        )
+    }
 
-  @Test
-  fun `smart casts do not duplicate output`() {
-    val actual = executeMainAssertion(
-      """
+    @Test
+    fun `smart casts do not duplicate output`() {
+        val actual = executeMainAssertion(
+            """
       val greeting: Any = "hello"
       assert(greeting is String && greeting.length == 2)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Assertion failed
       assert(greeting is String && greeting.length == 2)
              |        |            |        |      |
@@ -56,7 +56,7 @@ class CastExpressionTest {
              |        true
              hello
       """.trimIndent(),
-      actual,
-    )
-  }
+            actual,
+        )
+    }
 }

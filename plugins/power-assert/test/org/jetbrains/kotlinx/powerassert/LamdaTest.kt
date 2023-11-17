@@ -9,15 +9,15 @@ import org.jetbrains.kotlin.name.FqName
 import kotlin.test.Test
 
 class LamdaTest {
-  @Test
-  fun `list operations assert`() {
-    assertMessage(
-      """
+    @Test
+    fun `list operations assert`() {
+        assertMessage(
+            """
       fun main() {
         val list = listOf("Jane", "John")
         assert(list.map { "Doe, ${'$'}it" }.any { it == "Scott, Michael" })
       }""",
-      """
+            """
       Assertion failed
       assert(list.map { "Doe, ${'$'}it" }.any { it == "Scott, Michael" })
              |    |                  |
@@ -25,13 +25,13 @@ class LamdaTest {
              |    [Doe, Jane, Doe, John]
              [Jane, John]
       """.trimIndent(),
-    )
-  }
+        )
+    }
 
-  @Test
-  fun `list operations require`() {
-    assertMessage(
-        """
+    @Test
+    fun `list operations require`() {
+        assertMessage(
+            """
       fun main() {
         val list = listOf("Jane", "John")
         require(
@@ -40,7 +40,7 @@ class LamdaTest {
                 .any { it == "Scott, Michael" }
         )
       }""",
-        """
+            """
       Assertion failed
       require(
           value = list
@@ -54,7 +54,7 @@ class LamdaTest {
                false
       )
       """.trimIndent(),
-        PowerAssertCompilerPluginRegistrar(setOf(FqName("kotlin.require"))),
-    )
-  }
+            PowerAssertCompilerPluginRegistrar(setOf(FqName("kotlin.require"))),
+        )
+    }
 }

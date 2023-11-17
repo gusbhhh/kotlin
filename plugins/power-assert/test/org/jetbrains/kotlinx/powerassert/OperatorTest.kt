@@ -8,65 +8,65 @@ package org.jetbrains.kotlinx.powerassert
 import kotlin.test.Test
 
 class OperatorTest {
-  @Test
-  fun `contains operator is correctly aligned`() {
-    assertMessage(
-      """
+    @Test
+    fun `contains operator is correctly aligned`() {
+        assertMessage(
+            """
       fun main() {
         assert("Name" in listOf("Hello", "World"))
       }""",
-      """
+            """
       Assertion failed
       assert("Name" in listOf("Hello", "World"))
                     |  |
                     |  [Hello, World]
                     false
       """.trimIndent(),
-    )
-  }
+        )
+    }
 
-  @Test
-  fun `contains function is correctly aligned`() {
-    assertMessage(
-      """
+    @Test
+    fun `contains function is correctly aligned`() {
+        assertMessage(
+            """
       fun main() {
         assert(listOf("Hello", "World").contains("Name"))
       }""",
-      """
+            """
       Assertion failed
       assert(listOf("Hello", "World").contains("Name"))
              |                        |
              |                        false
              [Hello, World]
       """.trimIndent(),
-    )
-  }
+        )
+    }
 
-  @Test
-  fun `negative contains operator is correctly aligned`() {
-    assertMessage(
-      """
+    @Test
+    fun `negative contains operator is correctly aligned`() {
+        assertMessage(
+            """
       fun main() {
         assert("Hello" !in listOf("Hello", "World"))
       }""",
-      """
+            """
       Assertion failed
       assert("Hello" !in listOf("Hello", "World"))
                      |   |
                      |   [Hello, World]
                      false
       """.trimIndent(),
-    )
-  }
+        )
+    }
 
-  @Test
-  fun `negative contains function is correctly aligned`() {
-    assertMessage(
-      """
+    @Test
+    fun `negative contains function is correctly aligned`() {
+        assertMessage(
+            """
       fun main() {
         assert(!listOf("Hello", "World").contains("Hello"))
       }""",
-      """
+            """
       Assertion failed
       assert(!listOf("Hello", "World").contains("Hello"))
              ||                        |
@@ -74,6 +74,6 @@ class OperatorTest {
              |[Hello, World]
              false
       """.trimIndent(),
-    )
-  }
+        )
+    }
 }

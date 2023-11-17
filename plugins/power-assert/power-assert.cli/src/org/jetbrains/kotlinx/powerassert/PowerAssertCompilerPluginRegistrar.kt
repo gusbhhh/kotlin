@@ -18,18 +18,18 @@ val KEY_FUNCTIONS = CompilerConfigurationKey<List<String>>("fully-qualified func
 
 @AutoService(CompilerPluginRegistrar::class)
 class PowerAssertCompilerPluginRegistrar(
-  private val functions: Set<FqName>,
+    private val functions: Set<FqName>,
 ) : CompilerPluginRegistrar() {
-  @Suppress("unused")
-  constructor() : this(emptySet()) // Used by service loader
+    @Suppress("unused")
+    constructor() : this(emptySet()) // Used by service loader
 
-  override val supportsK2: Boolean = true
+    override val supportsK2: Boolean = true
 
-  override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-    val functions = configuration[KEY_FUNCTIONS]?.map { FqName(it) } ?: functions
-    if (functions.isEmpty()) return
+    override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+        val functions = configuration[KEY_FUNCTIONS]?.map { FqName(it) } ?: functions
+        if (functions.isEmpty()) return
 
-    val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-    IrGenerationExtension.registerExtension(PowerAssertIrGenerationExtension(messageCollector, functions.toSet()))
-  }
+        val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+        IrGenerationExtension.registerExtension(PowerAssertIrGenerationExtension(messageCollector, functions.toSet()))
+    }
 }

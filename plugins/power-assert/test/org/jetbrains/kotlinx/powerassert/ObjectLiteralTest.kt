@@ -8,14 +8,14 @@ package org.jetbrains.kotlinx.powerassert
 import kotlin.test.Test
 
 class ObjectLiteralTest {
-  @Test
-  fun `internals of object literal should not be separated`() {
-    assertMessage(
-      """
+    @Test
+    fun `internals of object literal should not be separated`() {
+        assertMessage(
+            """
       fun main() {
         assert(object { override fun toString() = "ANONYMOUS" }.toString() == "toString()")
       }""",
-      """
+            """
       Assertion failed
       assert(object { override fun toString() = "ANONYMOUS" }.toString() == "toString()")
              |                                                |          |
@@ -23,6 +23,6 @@ class ObjectLiteralTest {
              |                                                ANONYMOUS
              ANONYMOUS
       """.trimIndent(),
-    )
-  }
+        )
+    }
 }

@@ -16,55 +16,55 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 private val DEFAULT_COMPILER_PLUGIN_REGISTRARS = arrayOf(
-  PowerAssertCompilerPluginRegistrar(setOf(FqName("kotlin.assert"))),
+    PowerAssertCompilerPluginRegistrar(setOf(FqName("kotlin.assert"))),
 )
 
 fun compile(
-  list: List<SourceFile>,
-  vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
+    list: List<SourceFile>,
+    vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
 ): KotlinCompilation.Result {
-  return KotlinCompilation().apply {
-    sources = list
-    messageOutputStream = object : OutputStream() {
-      override fun write(b: Int) {
-        // black hole all writes
-      }
+    return KotlinCompilation().apply {
+        sources = list
+        messageOutputStream = object : OutputStream() {
+            override fun write(b: Int) {
+                // black hole all writes
+            }
 
-      override fun write(b: ByteArray, off: Int, len: Int) {
-        // black hole all writes
-      }
-    }
-    this.compilerPluginRegistrars = compilerPluginRegistrars.toList()
-    inheritClassPath = true
-  }.compile()
+            override fun write(b: ByteArray, off: Int, len: Int) {
+                // black hole all writes
+            }
+        }
+        this.compilerPluginRegistrars = compilerPluginRegistrars.toList()
+        inheritClassPath = true
+    }.compile()
 }
 
 fun executeAssertion(
-  @Language("kotlin") source: String,
-  vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
+    @Language("kotlin") source: String,
+    vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
 ): String {
-  val result = compile(
-    listOf(SourceFile.kotlin("main.kt", source, trimIndent = false)),
-    *compilerPluginRegistrars,
-  )
-  assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
+    val result = compile(
+        listOf(SourceFile.kotlin("main.kt", source, trimIndent = false)),
+        *compilerPluginRegistrars,
+    )
+    assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
 
-  val kClazz = result.classLoader.loadClass("MainKt")
-  val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-  try {
+    val kClazz = result.classLoader.loadClass("MainKt")
+    val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
     try {
-      main.invoke(null)
-    } catch (t: InvocationTargetException) {
-      throw t.cause!!
+        try {
+            main.invoke(null)
+        } catch (t: InvocationTargetException) {
+            throw t.cause!!
+        }
+        fail("should have thrown assertion")
+    } catch (t: Throwable) {
+        return t.message ?: ""
     }
-    fail("should have thrown assertion")
-  } catch (t: Throwable) {
-    return t.message ?: ""
-  }
 }
 
 fun executeMainAssertion(mainBody: String) = executeAssertion(
-  """
+    """
 fun main() {
   $mainBody
 }
@@ -72,10 +72,10 @@ fun main() {
 )
 
 fun assertMessage(
-  @Language("kotlin") source: String,
-  message: String,
-  vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
+    @Language("kotlin") source: String,
+    message: String,
+    vararg compilerPluginRegistrars: CompilerPluginRegistrar = DEFAULT_COMPILER_PLUGIN_REGISTRARS,
 ) {
-  val actual = executeAssertion(source, *compilerPluginRegistrars)
-  assertEquals(message, actual)
+    val actual = executeAssertion(source, *compilerPluginRegistrars)
+    assertEquals(message, actual)
 }

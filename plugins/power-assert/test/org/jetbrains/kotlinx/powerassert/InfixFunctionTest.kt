@@ -14,289 +14,289 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class InfixFunctionTest {
-  @Test
-  fun `extension infix function call includes receiver`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension infix function call includes receiver`() {
+        val actual = runExtensionInfix(
+            """
       (1 + 1) mustEqual (2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       (1 + 1) mustEqual (2 + 4)
          |                 |
          |                 6
          2
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension infix function call with constant receiver`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension infix function call with constant receiver`() {
+        val actual = runExtensionInfix(
+            """
       1 mustEqual (2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       1 mustEqual (2 + 4)
                      |
                      6
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension infix function call with constant parameter`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension infix function call with constant parameter`() {
+        val actual = runExtensionInfix(
+            """
       (1 + 1) mustEqual 6
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       (1 + 1) mustEqual 6
          |
          2
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension infix function call with only constants`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension infix function call with only constants`() {
+        val actual = runExtensionInfix(
+            """
       2 mustEqual 6
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Assertion failed
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension non-infix function call includes receiver`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension non-infix function call includes receiver`() {
+        val actual = runExtensionInfix(
+            """
       (1 + 1).mustEqual(2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       (1 + 1).mustEqual(2 + 4)
          |                |
          |                6
          2
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension non-infix function call with constant receiver`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension non-infix function call with constant receiver`() {
+        val actual = runExtensionInfix(
+            """
       1.mustEqual(2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       1.mustEqual(2 + 4)
                     |
                     6
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension non-infix function call with constant parameter`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension non-infix function call with constant parameter`() {
+        val actual = runExtensionInfix(
+            """
       (1 + 1).mustEqual(6)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       (1 + 1).mustEqual(6)
          |
          2
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `extension non-infix function call with only constants`() {
-    val actual = runExtensionInfix(
-      """
+    @Test
+    fun `extension non-infix function call with only constants`() {
+        val actual = runExtensionInfix(
+            """
       2.mustEqual(6)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Assertion failed
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch infix function call includes receiver`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch infix function call includes receiver`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1 + 1) mustEqual (2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1 + 1) mustEqual (2 + 4)
       |         |                 |
       |         |                 6
       |         2
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch infix function call with constant receiver`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch infix function call with constant receiver`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1) mustEqual (2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1) mustEqual (2 + 4)
       |                       |
       |                       6
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch infix function call with constant parameter`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch infix function call with constant parameter`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1 + 1) mustEqual 6
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1 + 1) mustEqual 6
       |         |
       |         2
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch infix function call with only constants`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch infix function call with only constants`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(2) mustEqual 6
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(2) mustEqual 6
       |
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch non-infix function call includes receiver`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch non-infix function call includes receiver`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1 + 1).mustEqual(2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1 + 1).mustEqual(2 + 4)
       |         |                |
       |         |                6
       |         2
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch non-infix function call with constant receiver`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch non-infix function call with constant receiver`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1).mustEqual(2 + 4)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1).mustEqual(2 + 4)
       |                      |
       |                      6
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch non-infix function call with constant parameter`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch non-infix function call with constant parameter`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(1 + 1).mustEqual(6)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(1 + 1).mustEqual(6)
       |         |
       |         2
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  @Test
-  fun `dispatch non-infix function call with only constants`() {
-    val actual = runDispatchInfix(
-      """
+    @Test
+    fun `dispatch non-infix function call with only constants`() {
+        val actual = runDispatchInfix(
+            """
       Wrapper(2).mustEqual(6)
       """.trimIndent(),
-    )
-    assertEquals(
-      """
+        )
+        assertEquals(
+            """
       Wrapper(2).mustEqual(6)
       |
       Wrapper
       """.trimIndent(),
-      actual.trim(),
-    )
-  }
+            actual.trim(),
+        )
+    }
 
-  private fun runExtensionInfix(mainBody: String): String {
-    return run(
-      SourceFile.kotlin(
-        name = "main.kt",
-        contents = """
+    private fun runExtensionInfix(mainBody: String): String {
+        return run(
+            SourceFile.kotlin(
+                name = "main.kt",
+                contents = """
         infix fun <V> V.mustEqual(expected: V): Unit = assert(this == expected)
         
         fun <V> V.mustEqual(expected: V, message: () -> String): Unit =
@@ -306,17 +306,17 @@ class InfixFunctionTest {
           $mainBody
         }
         """.trimIndent(),
-        trimIndent = false,
-      ),
-      setOf(FqName("mustEqual")),
-    )
-  }
+                trimIndent = false,
+            ),
+            setOf(FqName("mustEqual")),
+        )
+    }
 
-  private fun runDispatchInfix(mainBody: String): String {
-    return run(
-      SourceFile.kotlin(
-        name = "main.kt",
-        contents = """
+    private fun runDispatchInfix(mainBody: String): String {
+        return run(
+            SourceFile.kotlin(
+                name = "main.kt",
+                contents = """
         class Wrapper<V>(
           private val value: V
         ) {
@@ -332,27 +332,27 @@ class InfixFunctionTest {
           $mainBody
         }
         """.trimIndent(),
-        trimIndent = false,
-      ),
-      setOf(FqName("Wrapper.mustEqual")),
-    )
-  }
-
-  private fun run(file: SourceFile, fqNames: Set<FqName>, main: String = "MainKt"): String {
-    val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(fqNames))
-    assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, "Failed with messages: " + result.messages)
-
-    val kClazz = result.classLoader.loadClass(main)
-    val mainMethod = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-    try {
-      try {
-        mainMethod.invoke(null)
-      } catch (t: InvocationTargetException) {
-        throw t.cause!!
-      }
-      fail("should have thrown assertion")
-    } catch (t: Throwable) {
-      return t.message ?: ""
+                trimIndent = false,
+            ),
+            setOf(FqName("Wrapper.mustEqual")),
+        )
     }
-  }
+
+    private fun run(file: SourceFile, fqNames: Set<FqName>, main: String = "MainKt"): String {
+        val result = compile(listOf(file), PowerAssertCompilerPluginRegistrar(fqNames))
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, "Failed with messages: " + result.messages)
+
+        val kClazz = result.classLoader.loadClass(main)
+        val mainMethod = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
+        try {
+            try {
+                mainMethod.invoke(null)
+            } catch (t: InvocationTargetException) {
+                throw t.cause!!
+            }
+            fail("should have thrown assertion")
+        } catch (t: Throwable) {
+            return t.message ?: ""
+        }
+    }
 }
