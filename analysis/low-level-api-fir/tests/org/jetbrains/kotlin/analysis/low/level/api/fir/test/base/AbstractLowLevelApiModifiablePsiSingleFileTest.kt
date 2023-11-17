@@ -24,8 +24,8 @@ abstract class AbstractLowLevelApiModifiablePsiSingleFileTest : AbstractLowLevel
     abstract fun doTestWithPsiModification(ktFile: KtFile, moduleStructure: TestModuleStructure, testServices: TestServices)
 
     final override fun doTestByFileStructure(ktFile: KtFile, moduleStructure: TestModuleStructure, testServices: TestServices) {
-        runWriteAction {
-            CommandProcessor.getInstance().runUndoTransparentAction {
+        CommandProcessor.getInstance().runUndoTransparentAction {
+            runWriteAction {
                 doTestWithPsiModification(ktFile, moduleStructure, testServices)
             }
         }
