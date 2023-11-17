@@ -173,7 +173,7 @@ It’s more suitable when your tooling needs to read metadata of possibly newer 
 ### Detailed explanation
 
 Kotlin compiler and its features evolve over time, and so does its metadata format. Metadata format version is equal to the Kotlin compiler version.
-As you might guess, evolving metadata format usually involves adding new fields for new Kotlin language features. Therefore, 
+Naturally, evolving metadata format usually involves adding new fields for new Kotlin language features. Therefore, 
 some problems may occur when you're reading new metadata with an older version of Kotlin compiler or kotlinx-metadata-jvm library.
 
 By default, the Kotlin compiler (and similar, kotlinx-metadata-jvm library) has forward compatibility for versions not higher than current + 1.
