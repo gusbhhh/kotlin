@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlinx.powerassert
 
-import com.google.auto.service.AutoService
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.name.FqName
 
 val KEY_FUNCTIONS = CompilerConfigurationKey<List<String>>("fully-qualified function names")
 
-@AutoService(CompilerPluginRegistrar::class)
 class PowerAssertCompilerPluginRegistrar(
     private val functions: Set<FqName>,
 ) : CompilerPluginRegistrar() {
