@@ -802,7 +802,7 @@ public sealed class KotlinClassMetadata {
          * This method makes best effort to read unsupported metadata versions.
          * If metadata version is greater than [JvmMetadataVersion.CURRENT] + 1, this method may ignore parts of the metadata it does not understand but it will not throw an exception.
          * Because obtained metadata can be incomplete, its [KotlinClassMetadata.write] method will throw an exception.
-         * This method still cannot read metadata from pre-1.0 compilers.
+         * This method still cannot read metadata produced by pre-1.0 compilers.
          *
          * @throws IllegalArgumentException if the metadata version is less than 1.0 or metadata format has been changed in an unpredictable way and reading of incompatible metadata is not possible
          *
