@@ -48,6 +48,8 @@ import org.jetbrains.kotlin.samWithReceiver.*
 import org.jetbrains.kotlin.test.TargetBackend
 import org.jetbrains.kotlinx.atomicfu.AbstractAtomicfuJsIrTest
 import org.jetbrains.kotlinx.atomicfu.AbstractAtomicfuJvmIrTest
+import org.jetbrains.kotlinx.powerassert.AbstractFirLightTreeBlackBoxCodegenTestForPowerAssert
+import org.jetbrains.kotlinx.powerassert.AbstractIrBlackBoxCodegenTestForPowerAssert
 import org.junit.jupiter.api.Tag
 
 
@@ -356,6 +358,15 @@ fun main(args: Array<String>) {
             }
             testClass<AbstractFirPsiDiagnosticTestForLombok> {
                 model("diagnostics", excludedPattern = excludedFirTestdataPattern)
+            }
+        }
+
+        testGroup("plugins/power-assert/tests-gen", "plugins/power-assert/testData") {
+            testClass<AbstractIrBlackBoxCodegenTestForPowerAssert> {
+                model("codegen", excludedPattern = excludedFirTestdataPattern)
+            }
+            testClass<AbstractFirLightTreeBlackBoxCodegenTestForPowerAssert> {
+                model("codegen", excludedPattern = excludedFirTestdataPattern)
             }
         }
 
