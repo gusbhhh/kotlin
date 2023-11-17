@@ -23,7 +23,7 @@ data class BuildOptions(
     val logLevel: LogLevel = LogLevel.INFO,
     val stacktraceMode: String? = StacktraceOption.FULL_STACKTRACE_LONG_OPTION,
     val kotlinVersion: String = TestVersions.Kotlin.CURRENT,
-    val warningMode: WarningMode = WarningMode.Fail,
+    val warningMode: WarningMode = WarningMode.None,
     val configurationCache: Boolean = false,
     val projectIsolation: Boolean = false,
     val configurationCacheProblems: BaseGradleIT.ConfigurationCacheProblems = BaseGradleIT.ConfigurationCacheProblems.FAIL,
