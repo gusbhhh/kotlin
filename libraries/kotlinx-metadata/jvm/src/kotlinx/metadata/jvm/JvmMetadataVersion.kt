@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmMetadataVersion as C
  * compiler writes its full version to the `@Metadata` annotation; therefore, patch version is accounted for in comparisons and equality.
  * All components (major, minor, and patch) should be non-negative.
  *
- * Note that metadata version is 1.1 for Kotlin compilers from 1.0 to 1.4, and is 1.0 or less for pre-1.0 compilers.
+ * Note that metadata version is 1.1 for Kotlin compilers from 1.0 until 1.4, and is 1.0 or less for pre-1.0 compilers.
  * Metadata with versions less than 1.1 is considered incompatible and cannot be read or written.
  *
  * The library can read in strict mode only compatible versions of metadata. For definition of compatible version, see documentation for [CURRENT] property.
