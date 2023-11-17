@@ -1,5 +1,4 @@
 // FIR_IDENTICAL
-// !DIAGNOSTICS: -UNUSED_PARAMETER
 // FIR_DUMP
 package one.two
 
