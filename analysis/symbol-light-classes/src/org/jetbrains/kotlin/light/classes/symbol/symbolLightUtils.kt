@@ -224,7 +224,7 @@ internal fun KtAnnotationValue.toAnnotationMemberValue(parent: PsiElement): PsiA
 internal fun KtAnnotationApplicationWithArgumentsInfo.normalizedArguments(): List<KtNamedAnnotationValue> {
     val args = arguments
     val ctorSymbolPointer = constructorSymbolPointer ?: return args
-    val element = psi ?: return args
+    val element = psi ?: return args // May work incorrectly. See KT-63568
 
     return analyzeForLightClasses(element) {
         val constructorSymbol = ctorSymbolPointer.restoreSymbolOrThrowIfDisposed()
