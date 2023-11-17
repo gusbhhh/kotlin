@@ -174,7 +174,7 @@ object MockLibraryUtil {
         runCompiler(compiler2JVMClass, args)
     }
 
-    private fun runJsCompiler(args: List<String>) {
+    fun runJsCompiler(args: List<String>) {
         runCompiler(compiler2JSClass, args)
     }
 
