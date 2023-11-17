@@ -47,7 +47,7 @@ public class JvmMetadataVersion(public val major: Int, public val minor: Int, pu
      *
      * Comparison is based on integer values of version parts with [major] being most significant one, then [minor], and finally [patch].
      *
-     * @return a negative integer, zero, or a positive integer if this JvmMetadataVersion object is less than, equal to, or greater than the specified JvmMetadataVersion object
+     * @return a negative integer, zero, or a positive integer if this JvmMetadataVersion object is less than, equal to, or greater than [other].
      */
     override fun compareTo(other: JvmMetadataVersion): Int {
         val majors = major.compareTo(other.major)
