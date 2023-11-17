@@ -200,15 +200,10 @@ internal fun KtAnnotationValue.toAnnotationMemberValue(parent: PsiElement): PsiA
         }
 
     is KtAnnotationApplicationValue -> {
-        val arguments = sourcePsi?.let {
-            analyzeForLightClasses(it) {
-                annotationValue.normalizedArguments()
-            }
-        } ?: annotationValue.arguments
         SymbolLightSimpleAnnotation(
             fqName = annotationValue.classId?.asFqNameString(),
             parent = parent,
-            arguments = arguments,
+            arguments = annotationValue.normalizedArguments(),
             kotlinOrigin = annotationValue.psi,
         )
     }
@@ -226,25 +221,29 @@ internal fun KtAnnotationValue.toAnnotationMemberValue(parent: PsiElement): PsiA
     KtUnsupportedAnnotationValue -> null
 }
 
-context(KtAnalysisSession)
 internal fun KtAnnotationApplicationWithArgumentsInfo.normalizedArguments(): List<KtNamedAnnotationValue> {
     val args = arguments
-    val constructorSymbol = ((constructorSymbolPointer ?: return args).restoreSymbolOrThrowIfDisposed())
-    val params = constructorSymbol.valueParameters
-    val normalized = mutableListOf<KtNamedAnnotationValue>()
-    for (param in params) {
-        var found = false
-        for (arg in args) {
-            if (arg.name == param.name) {
-                normalized.add(arg)
-                found = true
+    val ctorSymbolPointer = constructorSymbolPointer ?: return args
+    val element = psi ?: return args
+
+    return analyzeForLightClasses(element) {
+        val constructorSymbol = ctorSymbolPointer.restoreSymbolOrThrowIfDisposed()
+        val params = constructorSymbol.valueParameters
+        val normalized = mutableListOf<KtNamedAnnotationValue>()
+        for (param in params) {
+            var found = false
+            for (arg in args) {
+                if (arg.name == param.name) {
+                    normalized.add(arg)
+                    found = true
+                }
+            }
+            if (!found && param.isVararg && !param.hasDefaultValue) {
+                normalized.add(KtNamedAnnotationValue(param.name, KtArrayAnnotationValue(emptyList(), null)))
             }
         }
-        if (!found && param.isVararg && !param.hasDefaultValue) {
-            normalized.add(KtNamedAnnotationValue(param.name, KtArrayAnnotationValue(emptyList(), null)))
-        }
+        if (normalized == args) args else normalized
     }
-    return if (normalized == args) args else normalized
 }
 
 
