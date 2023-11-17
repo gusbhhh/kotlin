@@ -200,16 +200,15 @@ internal fun KtAnnotationValue.toAnnotationMemberValue(parent: PsiElement): PsiA
         }
 
     is KtAnnotationApplicationValue -> {
-
-        val missingVaragArgument = sourcePsi?.let {
+        val arguments = sourcePsi?.let {
             analyzeForLightClasses(it) {
-                annotationValue.findMissingVarargArgument()
+                annotationValue.normalizedArguments()
             }
-        }
+        } ?: annotationValue.arguments
         SymbolLightSimpleAnnotation(
             fqName = annotationValue.classId?.asFqNameString(),
             parent = parent,
-            arguments = annotationValue.arguments + listOfNotNull(missingVaragArgument),
+            arguments = arguments,
             kotlinOrigin = annotationValue.psi,
         )
     }
@@ -228,11 +227,25 @@ internal fun KtAnnotationValue.toAnnotationMemberValue(parent: PsiElement): PsiA
 }
 
 context(KtAnalysisSession)
-internal fun KtAnnotationApplicationWithArgumentsInfo.findMissingVarargArgument(): KtNamedAnnotationValue? =
-    constructorSymbolPointer?.restoreSymbolOrThrowIfDisposed()?.valueParameters?.find { param ->
-        param.isVararg && !param.hasDefaultValue && arguments.none { it.name == param.name
+internal fun KtAnnotationApplicationWithArgumentsInfo.normalizedArguments(): List<KtNamedAnnotationValue> {
+    val args = arguments
+    val constructorSymbol = ((constructorSymbolPointer ?: return args).restoreSymbolOrThrowIfDisposed())
+    val params = constructorSymbol.valueParameters
+    val normalized = mutableListOf<KtNamedAnnotationValue>()
+    for (param in params) {
+        var found = false
+        for (arg in args) {
+            if (arg.name == param.name) {
+                normalized.add(arg)
+                found = true
+            }
         }
-    }?.let { KtNamedAnnotationValue(it.name, KtArrayAnnotationValue(emptyList(), null)) }
+        if (!found && param.isVararg && !param.hasDefaultValue) {
+            normalized.add(KtNamedAnnotationValue(param.name, KtArrayAnnotationValue(emptyList(), null)))
+        }
+    }
+    return if (normalized == args) args else normalized
+}
 
 
 private fun KtEnumEntryAnnotationValue.asPsiReferenceExpression(parent: PsiElement): SymbolPsiReference? {

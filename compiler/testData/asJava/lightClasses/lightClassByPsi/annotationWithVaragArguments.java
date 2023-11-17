@@ -15,8 +15,8 @@ public final class AnnotationWithVaragArgumentsKt /* AnnotationWithVaragArgument
   public static final void bar();//  bar()
 
   @A(x = {})
-  @B(x = "x", z = "z", y = {})
-  @C(a = @A(x = {}), b = @B(x = "x", z = "z", y = {}))
+  @B(x = "x", y = {}, z = "z")
+  @C(a = @A(x = {}), b = @B(x = "x", y = {}, z = "z"))
   @D()
   @E(d = @D())
   public static final void foo();//  foo()
