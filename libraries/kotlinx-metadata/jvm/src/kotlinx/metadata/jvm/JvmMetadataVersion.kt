@@ -99,7 +99,7 @@ public class JvmMetadataVersion(public val major: Int, public val minor: Int, pu
          * The library can read in strict mode Kotlin metadata produced by Kotlin compilers from 1.0 up to and including this version + 1 minor.
          *
          * In other words, metadata version is supported if it is greater or equal than 1.1, and less or equal than [CURRENT] + 1 minor version.
-         * Note that metadata version is 1.1 for Kotlin from 1.0 to 1.4, and is equal to the language version starting from Kotlin 1.4.
+         * Note that metadata version is 1.1 for Kotlin from 1.0 until 1.4, and is equal to the language version starting from Kotlin 1.4.
          *
          * For example, if the latest supported stable Kotlin version is 1.7.0, kotlinx-metadata-jvm can read binaries produced by Kotlin compilers from 1.0
          * to 1.8.* inclusively. In this case, this property will have the value `1.7.0`.
